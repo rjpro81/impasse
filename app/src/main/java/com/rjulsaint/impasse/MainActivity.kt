@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,21 +52,30 @@ fun DisplayMasterPassword() {
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Text(text = "Master Password:", color = Color.Blue, style = TextStyle(color = Color.Blue))
-            var text = "Enter here"
-            TextField(
+            var text by remember { mutableStateOf("") }
+            OutlinedTextField(
                 value = text,
-                textStyle = TextStyle(color = Color.White),
+                label = { Text("Master Password") },
                 onValueChange = { text = it },
+                singleLine = true,
                 enabled = true,
                 shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
-                colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.Blue)
             )
             Spacer(
                 modifier = Modifier
-                    .padding(top = 4.dp, bottom = 4.dp)
+                    .padding(top = 8.dp, bottom = 8.dp)
             )
             Text(text = "Skip for now", color = Color.Cyan, style = TextStyle(color = Color.Cyan, textDecoration = TextDecoration.Underline))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 2.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                FloatingActionButton(onClick = { /**/ }) {
+                }
+            }
         }
     }
 }
