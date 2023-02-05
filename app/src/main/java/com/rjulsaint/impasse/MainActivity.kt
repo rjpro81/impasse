@@ -11,9 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,7 +25,6 @@ class MainActivity : ComponentActivity() {
             ImPasseTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
-                    //modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
                     ImpassePreview()
@@ -53,6 +50,11 @@ fun DisplayMasterPassword() {
                 .fillMaxWidth()
         ) {
             var text by remember { mutableStateOf("") }
+            Text("Please login", color = Color.Gray)
+            Spacer(
+                modifier = Modifier
+                    .padding(top = 8.dp, bottom = 8.dp)
+            )
             OutlinedTextField(
                 value = text,
                 label = { Text("Master Password") },
@@ -65,16 +67,13 @@ fun DisplayMasterPassword() {
                 modifier = Modifier
                     .padding(top = 8.dp, bottom = 8.dp)
             )
-            Text(text = "Skip for now", color = Color.Cyan, style = TextStyle(color = Color.Cyan, textDecoration = TextDecoration.Underline))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 2.dp),
-                horizontalArrangement = Arrangement.End
+            Button(
+                onClick = {},
+                enabled = true,
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
+                elevation = ButtonDefaults.elevation(pressedElevation = 5.dp)
             ) {
-                FloatingActionButton(onClick = { /**/ }) {
-                }
+                Text(text = "Login", color = Color.White)
             }
         }
     }
@@ -87,10 +86,10 @@ fun ImpassePreview() {
         Scaffold(
             topBar = {
                 TopAppBar (
-                      backgroundColor = Color.Blue
+                      backgroundColor = Color.DarkGray
                         ){
                     Text(
-                        "Impasse",
+                        "ImPasse",
                         modifier = Modifier.padding(start = 15.dp),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
