@@ -1,21 +1,23 @@
 package com.rjulsaint.impasse
 
+//import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+//import androidx.core.content.contentValuesOf
 
 class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseDatabase", null, 1) {
     private val table: String = "Password"
-    val readableDB: SQLiteDatabase = this.getReadableDatabase()
-    val writableDB: SQLiteDatabase = this.getWritableDatabase()
+    val readableDB: SQLiteDatabase = this.readableDatabase
+    val writableDB: SQLiteDatabase = this.writableDatabase
     override fun onCreate(db: SQLiteDatabase?) {
         /*val createPasswordTable =
-            ("CREATE TABLE Password (id INTEGER PRIMARY KEY AUTOINCREMENT,webaddress TEXT,description TEXT,login TEXT,password TEXT NOT NULL,masterpassword TEXT)")
+            ("CREATE TABLE Password (id INTEGER PRIMARY KEY AUTOINCREMENT,webAddress TEXT,description TEXT,login TEXT,password TEXT NOT NULL,masterPassword TEXT)")
         db?.execSQL(createPasswordTable)
         val createMasterPasswordTable =
-            ("CREATE TABLE MasterPassword (id INTEGER PRIMARY KEY AUTOINCREMENT,masterpassword TEXT REFERENCES Password)")*/
+            ("CREATE TABLE MasterPassword (id INTEGER PRIMARY KEY AUTOINCREMENT,masterPassword TEXT REFERENCES Password)")*/
         val createMasterPasswordTable =
-            ("CREATE TABLE IF NOT EXISTS MasterPassword (id INTEGER PRIMARY KEY AUTOINCREMENT,masterpassword TEXT)")
+            ("CREATE TABLE IF NOT EXISTS MasterPassword (id INTEGER PRIMARY KEY AUTOINCREMENT,masterPassword TEXT)")
         db?.execSQL(createMasterPasswordTable)
     }
 
@@ -24,19 +26,30 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         onCreate(db)
     }
 /*
-    fun addMasterPassword(db: SQLiteDatabase?, masterPassword : String){
-        val createMasterPassword =
-            ("INSERT INTO MasterPassword (masterpassword) values ($masterPassword)")
-        db?.execSQL(createMasterPassword)
+    fun addMasterPassword(db: SQLiteDatabase?, masterPassword : String) : Long? {
+        val contentValues = ContentValues()
+        return db?.insert("MasterPassword",null, contentValuesOf(Pair("masterPassword",masterPassword)))
     }
 */
-    fun masterPasswordLogin(db: SQLiteDatabase?, masterPassword: String): Int? {
-        val checkPassword =
-            ("SELECT masterpassword from MasterPassword WHERE masterpassword = ?")
-        val result = db?.rawQuery(checkPassword, arrayOf(masterPassword))
+    fun masterPasswordLogin(db: SQLiteDatabase?, masterPassword: String): Boolean {
+        val result = db?.query(
+            true,
+            "MasterPassword",
+            arrayOf("masterPassword"),
+            "masterPassword = ?",
+            arrayOf(masterPassword),
+            null,
+            null,
+            null,
+            null
+        )
+        var index = -1
         result?.moveToFirst()
-        //return result?.getString(1)
-        result?.close()
-        return result?.count
+        if (result?.getColumnIndex("masterpassword")!! >= 0) {
+            index = result.getColumnIndex("masterpassword")
+        }
+        val valid = result.getString(index) != null
+        result.close()
+        return valid
     }
 }

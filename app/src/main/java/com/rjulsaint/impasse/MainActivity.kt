@@ -70,11 +70,7 @@ fun DisplayMasterPassword(databaseHelper: DatabaseHelper) {
                     .padding(top = 8.dp, bottom = 8.dp)
             )
             Button(
-                onClick = {
-                    //databaseHelper.addMasterPassword(databaseHelper.writableDB, text)
-                    println(databaseHelper.masterPasswordLogin(databaseHelper.readableDB, text))
-                    println("Hello World!!!!!!!")
-                          },
+                onClick = { databaseHelper.masterPasswordLogin(databaseHelper.readableDB, text) },
                 enabled = true,
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
                 elevation = ButtonDefaults.elevation(pressedElevation = 5.dp)
