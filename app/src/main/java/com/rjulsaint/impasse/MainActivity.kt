@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
-//import android.database.*
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,6 +29,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                     val databaseHelper = DatabaseHelper(this)
+                    databaseHelper.onCreate(databaseHelper.writableDB)
                     ImpassePreview(databaseHelper)
                 }
             }
@@ -70,10 +71,8 @@ fun DisplayMasterPassword(databaseHelper: DatabaseHelper) {
             )
             Button(
                 onClick = {
-                    val db = databaseHelper.writableDatabase
-                    databaseHelper.onCreate(db)
-                    //databaseHelper.addMasterPassword(db, text)
-                    println(databaseHelper.masterPasswordLogin(db, text))
+                    //databaseHelper.addMasterPassword(databaseHelper.writableDB, text)
+                    println(databaseHelper.masterPasswordLogin(databaseHelper.readableDB, text))
                     println("Hello World!!!!!!!")
                           },
                 enabled = true,

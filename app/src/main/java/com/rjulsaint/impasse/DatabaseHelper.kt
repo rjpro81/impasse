@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteOpenHelper
 
 class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseDatabase", null, 1) {
     private val table: String = "Password"
+    val readableDB: SQLiteDatabase = this.getReadableDatabase()
+    val writableDB: SQLiteDatabase = this.getWritableDatabase()
     override fun onCreate(db: SQLiteDatabase?) {
         /*val createPasswordTable =
             ("CREATE TABLE Password (id INTEGER PRIMARY KEY AUTOINCREMENT,webaddress TEXT,description TEXT,login TEXT,password TEXT NOT NULL,masterpassword TEXT)")
@@ -21,13 +23,13 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         db?.execSQL("DROP TABLE IF EXISTS $table")
         onCreate(db)
     }
-
-    /*fun addMasterPassword(db: SQLiteDatabase?, masterPassword : String){
+/*
+    fun addMasterPassword(db: SQLiteDatabase?, masterPassword : String){
         val createMasterPassword =
             ("INSERT INTO MasterPassword (masterpassword) values ($masterPassword)")
         db?.execSQL(createMasterPassword)
-    }*/
-
+    }
+*/
     fun masterPasswordLogin(db: SQLiteDatabase?, masterPassword: String): Int? {
         val checkPassword =
             ("SELECT masterpassword from MasterPassword WHERE masterpassword = ?")
