@@ -3,6 +3,7 @@ package com.rjulsaint.impasse
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.shape.CornerSize
@@ -11,8 +12,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
@@ -27,21 +28,21 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     color = MaterialTheme.colors.background
                 ) {
-                    ImpassePreview()
+                    val databaseHelper = DatabaseHelper(this)
+                    ImpassePreview(databaseHelper)
                 }
             }
         }
     }
 }
-
-
-
 @Composable
-fun DisplayMasterPassword() {
+fun DisplayMasterPassword(databaseHelper: DatabaseHelper) {
+    val focusManager = LocalFocusManager.current
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .fillMaxHeight()
+            .fillMaxSize()
+            .clickable { focusManager.clearFocus() }
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -68,7 +69,13 @@ fun DisplayMasterPassword() {
                     .padding(top = 8.dp, bottom = 8.dp)
             )
             Button(
-                onClick = {},
+                onClick = {
+                    val db = databaseHelper.writableDatabase
+                    databaseHelper.onCreate(db)
+                    //databaseHelper.addMasterPassword(db, text)
+                    println(databaseHelper.masterPasswordLogin(db, text))
+                    println("Hello World!!!!!!!")
+                          },
                 enabled = true,
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
                 elevation = ButtonDefaults.elevation(pressedElevation = 5.dp)
@@ -79,15 +86,15 @@ fun DisplayMasterPassword() {
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
-fun ImpassePreview() {
+fun ImpassePreview(databaseHelper : DatabaseHelper) {
     ImPasseTheme {
         Scaffold(
             topBar = {
-                TopAppBar (
-                      backgroundColor = Color.DarkGray
-                        ){
+                TopAppBar(
+                    backgroundColor = Color.DarkGray
+                ) {
                     Text(
                         "ImPasse",
                         modifier = Modifier.padding(start = 15.dp),
@@ -99,7 +106,7 @@ fun ImpassePreview() {
             }
         ) { contentPadding ->
             Box(modifier = Modifier.padding(contentPadding))
-            DisplayMasterPassword()
+            DisplayMasterPassword(databaseHelper)
         }
     }
 }
