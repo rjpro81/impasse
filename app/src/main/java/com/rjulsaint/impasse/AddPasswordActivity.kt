@@ -1,6 +1,5 @@
 package com.rjulsaint.impasse
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,9 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
-
-class MainActivity : ComponentActivity() {
-    var sessionMasterPassword = ""
+class AddPasswordActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -61,21 +58,53 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                var text by remember { mutableStateOf("") }
+                var webAddress by remember { mutableStateOf("") }
+                var description by remember { mutableStateOf("") }
+                var password by remember { mutableStateOf("") }
                 var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
                 var passwordVisible by remember { mutableStateOf(false) }
 
-                Text("Please login", color = Color.Gray)
+                Text("Add Password", color = Color.Gray)
                 Spacer(
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = text,
-                    label = { Text("Master Password") },
+                    value = webAddress,
+                    label = { Text("Web Address") },
                     onValueChange =
                     {
-                        text = it
+                        webAddress = it
+                        textFieldInputIsError = false
+                    },
+                    singleLine = true,
+                    enabled = true,
+                    shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                )
+
+                OutlinedTextField(
+                    value = description,
+                    label = { Text("Site/Description") },
+                    onValueChange =
+                    {
+                        description = it
+                        textFieldInputIsError = false
+                    },
+                    singleLine = true,
+                    enabled = true,
+                    shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                )
+
+                OutlinedTextField(
+                    value = password,
+                    label = { Text("Password") },
+                    onValueChange =
+                    {
+                        password = it
                         textFieldInputIsError = false
                     },
                     singleLine = true,
@@ -89,11 +118,11 @@ class MainActivity : ComponentActivity() {
                         } else {
                             painterResource(id = R.drawable.passwordvisibleicon)
                         }
-                        val description = if (passwordVisible) "Hide password" else "Show password"
+                        val accessibilityDescription = if (passwordVisible) "Hide password" else "Show password"
 
                         // Toggle button to hide or display password
                         IconButton(onClick = {passwordVisible = !passwordVisible}){
-                            Icon(image, description, Modifier.size(30.dp))
+                            Icon(image, accessibilityDescription, Modifier.size(30.dp))
                         }
                     }
                 )
@@ -114,28 +143,28 @@ class MainActivity : ComponentActivity() {
                     Button(
                         onClick =
                         {
-                            val navigate = Intent(this@MainActivity, NewUserActivity::class.java)
-                            startActivity(navigate)
+
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
                         elevation = ButtonDefaults.elevation(pressedElevation = 5.dp),
                         modifier = Modifier.padding(end = 2.dp)
                     ) {
-                        Text(text = "New User", color = Color.White)
+                        Text(text = "Clear", color = Color.White)
                     }
 
                     Button(
                         onClick =
                         {
-                            if (databaseHelper.masterPasswordLogin(readableDB, text)) {
-                                sessionMasterPassword = text
-                                val navigate = Intent(this@MainActivity, AddPasswordActivity::class.java)
-                                startActivity(navigate)
+                            val masterPassword = MainActivity().sessionMasterPassword
+                            textFieldInputIsError = if (databaseHelper.addNewPassword(writeableDB, webAddress,description,password, masterPassword)!! >= 0) {
+                                true
                             } else {
-                                textFieldInputIsError = true
+                                true
                             }
-                            text = ""
+                            webAddress = ""
+                            description = ""
+                            password = ""
                             readableDB.close()
                             writeableDB.close()
                         },
@@ -144,7 +173,7 @@ class MainActivity : ComponentActivity() {
                         elevation = ButtonDefaults.elevation(pressedElevation = 5.dp),
                         modifier = Modifier.padding(start = 2.dp)
                     ) {
-                        Text(text = "Login", color = Color.White)
+                        Text(text = "Add Password", color = Color.White)
                     }
                 }
             }

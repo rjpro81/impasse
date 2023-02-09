@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.CursorIndexOutOfBoundsException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import androidx.core.content.contentValuesOf
 
 class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseDatabase", null, 1) {
     override fun onCreate(db: SQLiteDatabase?) {
@@ -31,13 +32,19 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
 
         db?.close()
     }
-/*
-    fun addMasterPassword(db: SQLiteDatabase?, masterPassword : String) : Long? {
-        val result = db?.insert("ImpasseMasterPassword",null, contentValuesOf(Pair("masterPassword",masterPassword)))
+
+    fun addNewUser(db: SQLiteDatabase?, userName: String,masterPassword: String) : Long? {
+        val result = db?.insert("ImpasseUser",null, contentValuesOf(Pair("masterPassword",masterPassword), Pair("userName", userName)))
         db?.close()
         return result
     }
-*/
+
+    fun addNewPassword(db: SQLiteDatabase?, webAddress: String, description: String, password: String, masterPassword: String) : Long? {
+        val result = db?.insert("ImpassePassword",null, contentValuesOf(Pair("webAddress",webAddress), Pair("description", description), Pair("password", password), Pair("masterPassword", masterPassword)))
+        db?.close()
+        return result
+    }
+
     fun masterPasswordLogin(db: SQLiteDatabase?, masterPassword: String): Boolean {
         val result = db?.query(
             true,

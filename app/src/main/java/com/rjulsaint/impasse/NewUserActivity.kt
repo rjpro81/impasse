@@ -25,9 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
-
-class MainActivity : ComponentActivity() {
-    var sessionMasterPassword = ""
+class NewUserActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -45,7 +43,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun DisplayMasterPassword(databaseHelper: DatabaseHelper) {
+    private fun DisplayUserName(databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
         val readableDB = databaseHelper.readableDatabase
         val writeableDB = databaseHelper.writableDatabase
@@ -61,21 +59,35 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                var text by remember { mutableStateOf("") }
+                var userName by remember { mutableStateOf("") }
+                var masterPassword by remember { mutableStateOf("") }
                 var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
                 var passwordVisible by remember { mutableStateOf(false) }
 
-                Text("Please login", color = Color.Gray)
+                Text("New User", color = Color.Gray)
                 Spacer(
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = text,
+                    value = userName,
+                    label = { Text("Username") },
+                    onValueChange =
+                    {
+                        userName = it
+                        textFieldInputIsError = false
+                    },
+                    singleLine = true,
+                    enabled = true,
+                    shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                )
+                OutlinedTextField(
+                    value = masterPassword,
                     label = { Text("Master Password") },
                     onValueChange =
                     {
-                        text = it
+                        masterPassword = it
                         textFieldInputIsError = false
                     },
                     singleLine = true,
@@ -97,7 +109,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 )
-
+                //This code will be used to meet password requirements
                 if (textFieldInputIsError) {
                     Text(
                         text = "Wrong password",
@@ -114,7 +126,7 @@ class MainActivity : ComponentActivity() {
                     Button(
                         onClick =
                         {
-                            val navigate = Intent(this@MainActivity, NewUserActivity::class.java)
+                            val navigate = Intent(this@NewUserActivity, MainActivity::class.java)
                             startActivity(navigate)
                         },
                         enabled = true,
@@ -122,20 +134,20 @@ class MainActivity : ComponentActivity() {
                         elevation = ButtonDefaults.elevation(pressedElevation = 5.dp),
                         modifier = Modifier.padding(end = 2.dp)
                     ) {
-                        Text(text = "New User", color = Color.White)
+                        Text(text = "Cancel", color = Color.White)
                     }
 
                     Button(
                         onClick =
                         {
-                            if (databaseHelper.masterPasswordLogin(readableDB, text)) {
-                                sessionMasterPassword = text
-                                val navigate = Intent(this@MainActivity, AddPasswordActivity::class.java)
+                            if (databaseHelper.addNewUser(writeableDB, userName, masterPassword)!! >= 0) {
+                                val navigate = Intent(this@NewUserActivity, MainActivity::class.java)
                                 startActivity(navigate)
                             } else {
                                 textFieldInputIsError = true
                             }
-                            text = ""
+                            userName = ""
+                            masterPassword = ""
                             readableDB.close()
                             writeableDB.close()
                         },
@@ -144,7 +156,7 @@ class MainActivity : ComponentActivity() {
                         elevation = ButtonDefaults.elevation(pressedElevation = 5.dp),
                         modifier = Modifier.padding(start = 2.dp)
                     ) {
-                        Text(text = "Login", color = Color.White)
+                        Text(text = "Create", color = Color.White)
                     }
                 }
             }
@@ -171,7 +183,7 @@ class MainActivity : ComponentActivity() {
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding))
-                DisplayMasterPassword(databaseHelper)
+                DisplayUserName(databaseHelper)
             }
         }
     }
