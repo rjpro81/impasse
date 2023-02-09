@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -14,7 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
@@ -57,6 +62,7 @@ fun DisplayMasterPassword(databaseHelper: DatabaseHelper) {
         ) {
             var text by remember { mutableStateOf("") }
             var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
+            var passwordVisible by remember { mutableStateOf(false) }
 
             Text("Please login", color = Color.Gray)
             Spacer(
@@ -74,7 +80,23 @@ fun DisplayMasterPassword(databaseHelper: DatabaseHelper) {
                 singleLine = true,
                 enabled = true,
                 shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    val image = if(passwordVisible){
+                        painterResource(id = R.drawable.passwordnotvisibleicon)
+                    } else {
+                        painterResource(id = R.drawable.passwordvisibleicon)
+                    }
+                    val description = if (passwordVisible) "Hide password" else "Show password"
+
+                    // Toggle button to hide or display password
+                    IconButton(onClick = {passwordVisible = !passwordVisible}){
+                        Icon(image, description, Modifier.size(30.dp))
+                    }
+                }
             )
+
             if (textFieldInputIsError) {
                 Text(
                     text = "Wrong password",
