@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,16 +30,19 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                     val databaseHelper = DatabaseHelper(this)
-                    databaseHelper.onCreate(databaseHelper.writableDB)
+                    databaseHelper.onCreate(databaseHelper.writableDatabase)
                     ImpassePreview(databaseHelper)
                 }
             }
         }
     }
 }
+
 @Composable
 fun DisplayMasterPassword(databaseHelper: DatabaseHelper) {
     val focusManager = LocalFocusManager.current
+    val readableDB = databaseHelper.readableDatabase
+    val writeableDB = databaseHelper.writableDatabase
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -52,6 +56,8 @@ fun DisplayMasterPassword(databaseHelper: DatabaseHelper) {
                 .fillMaxWidth()
         ) {
             var text by remember { mutableStateOf("") }
+            var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
+
             Text("Please login", color = Color.Gray)
             Spacer(
                 modifier = Modifier
@@ -60,17 +66,39 @@ fun DisplayMasterPassword(databaseHelper: DatabaseHelper) {
             OutlinedTextField(
                 value = text,
                 label = { Text("Master Password") },
-                onValueChange = { text = it },
+                onValueChange =
+                {
+                    text = it
+                    textFieldInputIsError = false
+                },
                 singleLine = true,
                 enabled = true,
                 shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
             )
+            if (textFieldInputIsError) {
+                Text(
+                    text = "Wrong password",
+                    color = MaterialTheme.colors.error,
+                    style = MaterialTheme.typography.caption,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
             Spacer(
                 modifier = Modifier
                     .padding(top = 8.dp, bottom = 8.dp)
             )
             Button(
-                onClick = { databaseHelper.masterPasswordLogin(databaseHelper.readableDB, text) },
+                onClick =
+                {
+                    if (databaseHelper.masterPasswordLogin(readableDB, text)){
+                        databaseHelper.masterPasswordLogin(readableDB, text)
+                    } else {
+                        textFieldInputIsError = true
+                    }
+                    text = ""
+                    readableDB.close()
+                    writeableDB.close()
+                },
                 enabled = true,
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
                 elevation = ButtonDefaults.elevation(pressedElevation = 5.dp)
