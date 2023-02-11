@@ -1,11 +1,9 @@
 package com.rjulsaint.impasse
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -13,36 +11,20 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
-class AddPasswordActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            ImPasseTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    color = MaterialTheme.colors.background
-                ) {
-                    val databaseHelper = DatabaseHelper(this)
-                    databaseHelper.onCreate(databaseHelper.writableDatabase)
-                    ImpassePreview(databaseHelper)
-                }
-            }
-        }
-    }
-
+class AddPasswordActivity {
     @Composable
-    private fun DisplayMasterPassword(databaseHelper: DatabaseHelper) {
+    private fun DisplayAddPasswordFields(databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
         val readableDB = databaseHelper.readableDatabase
         val writeableDB = databaseHelper.writableDatabase
@@ -143,7 +125,9 @@ class AddPasswordActivity : ComponentActivity() {
                     Button(
                         onClick =
                         {
-
+                            webAddress = ""
+                            description = ""
+                            password = ""
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
@@ -156,12 +140,12 @@ class AddPasswordActivity : ComponentActivity() {
                     Button(
                         onClick =
                         {
-                            val masterPassword = MainActivity().sessionMasterPassword
+                            /*val masterPassword = MainActivity().sessionMasterPassword
                             textFieldInputIsError = if (databaseHelper.addNewPassword(writeableDB, webAddress,description,password, masterPassword)!! >= 0) {
                                 true
                             } else {
                                 true
-                            }
+                            }*/
                             webAddress = ""
                             description = ""
                             password = ""
@@ -176,31 +160,62 @@ class AddPasswordActivity : ComponentActivity() {
                         Text(text = "Add Password", color = Color.White)
                     }
                 }
+                Spacer(
+                    modifier = Modifier
+                        .padding(top = 8.dp, bottom = 8.dp)
+                )
+                Button(
+                    onClick =
+                    {
+                        val generatedPassword = PasswordUtility().generate()
+                        password = generatedPassword
+                    },
+                    enabled = true,
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
+                    elevation = ButtonDefaults.elevation(pressedElevation = 5.dp),
+                    modifier = Modifier
+                        .padding(end = 2.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(text = "Generate", color = Color.White)
+                }
             }
         }
     }
 
-    //@Preview(showBackground = true)
     @Composable
-    private fun ImpassePreview(databaseHelper : DatabaseHelper) {
+    fun DisplayAddPasswordScreen(databaseHelper: DatabaseHelper) {
         ImPasseTheme {
+            val coroutineScope = rememberCoroutineScope()
+            val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
+            val navController = rememberNavController()
             Scaffold(
-                topBar = {
-                    TopAppBar(
-                        backgroundColor = Color.DarkGray
+                topBar = { AppBar().TopBar(coroutineScope = coroutineScope, scaffoldState = scaffoldState) },
+                scaffoldState = scaffoldState,
+                drawerBackgroundColor = Color.DarkGray,
+                drawerGesturesEnabled = true,
+                drawerContent = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 8.dp, top = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text(
-                            "ImPasse",
-                            modifier = Modifier.padding(start = 15.dp),
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(126.dp)
+                                .clip(CircleShape),
+                            contentAlignment = Alignment.Center,
+                        ) {
+
+                        }
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navController = navController)
                     }
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding))
-                DisplayMasterPassword(databaseHelper)
+                DisplayAddPasswordFields(databaseHelper)
             }
         }
     }

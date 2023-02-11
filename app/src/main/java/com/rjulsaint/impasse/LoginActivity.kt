@@ -23,9 +23,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
-class NewUserActivity {
+class LoginActivity {
+    var sessionMasterPassword = ""
     @Composable
-    private fun DisplayUsernameFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
+    private fun DisplayLoginFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
         val readableDB = databaseHelper.readableDatabase
         val writeableDB = databaseHelper.writableDatabase
@@ -41,35 +42,21 @@ class NewUserActivity {
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                var userName by remember { mutableStateOf("") }
-                var masterPassword by remember { mutableStateOf("") }
+                var text by remember { mutableStateOf("") }
                 var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
                 var passwordVisible by remember { mutableStateOf(false) }
 
-                Text("New User", color = Color.Gray)
+                Text("Please login", color = Color.Gray)
                 Spacer(
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = userName,
-                    label = { Text("Username") },
-                    onValueChange =
-                    {
-                        userName = it
-                        textFieldInputIsError = false
-                    },
-                    singleLine = true,
-                    enabled = true,
-                    shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                )
-                OutlinedTextField(
-                    value = masterPassword,
+                    value = text,
                     label = { Text("Master Password") },
                     onValueChange =
                     {
-                        masterPassword = it
+                        text = it
                         textFieldInputIsError = false
                     },
                     singleLine = true,
@@ -91,10 +78,10 @@ class NewUserActivity {
                         }
                     }
                 )
-                //This code will be used to meet password requirements
+
                 if (textFieldInputIsError) {
                     Text(
-                        text = "1 uppercase, 1 lowercase letter, 1 special character,\nand minimum 8 characters is required",
+                        text = "Wrong password",
                         color = MaterialTheme.colors.error,
                         style = MaterialTheme.typography.caption,
                         modifier = Modifier.padding(start = 16.dp)
@@ -108,46 +95,44 @@ class NewUserActivity {
                     Button(
                         onClick =
                         {
-                            navHostController.navigate(ScreenNavigation.Login.route)
+                            navHostController.navigate(ScreenNavigation.NewUser.route)
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
                         elevation = ButtonDefaults.elevation(pressedElevation = 5.dp),
                         modifier = Modifier.padding(end = 2.dp)
                     ) {
-                        Text(text = "Cancel", color = Color.White)
+                        Text(text = "New User", color = Color.White)
                     }
 
                     Button(
                         onClick =
                         {
-                           if (databaseHelper.addNewUser(writeableDB, userName, masterPassword)!! >= 0 && masterPassword != "") {
-                               navHostController.navigate(ScreenNavigation.Login.route)
-                            } else if(!PasswordUtility().validate(masterPassword)){
-                                textFieldInputIsError = true
+                            if (databaseHelper.masterPasswordLogin(readableDB, text)) {
+                                sessionMasterPassword = text
+                                navHostController.navigate(ScreenNavigation.AddPassword.route)
                             } else {
                                 textFieldInputIsError = true
                             }
-                            userName = ""
-                            masterPassword = ""
+                            text = ""
                             readableDB.close()
                             writeableDB.close()
+                            navHostController.navigate(ScreenNavigation.NewUser.route)
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
                         elevation = ButtonDefaults.elevation(pressedElevation = 5.dp),
                         modifier = Modifier.padding(start = 2.dp)
                     ) {
-                        Text(text = "Create", color = Color.White)
+                        Text(text = "Login", color = Color.White)
                     }
                 }
             }
         }
     }
 
-    //@Preview(showBackground = true)
     @Composable
-    fun DisplayUsernameScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
+    fun DisplayLoginScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -177,8 +162,9 @@ class NewUserActivity {
                     }
                 }
             ) { contentPadding ->
-                Box(modifier = Modifier.padding(contentPadding))
-                DisplayUsernameFields(navHostController, databaseHelper)
+                Box(modifier = Modifier.padding(contentPadding)) {
+                    DisplayLoginFields(navHostController, databaseHelper)
+                }
             }
         }
     }
