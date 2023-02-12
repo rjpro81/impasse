@@ -45,6 +45,7 @@ class AddPasswordActivity {
                 var password by remember { mutableStateOf("") }
                 var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
                 var passwordVisible by remember { mutableStateOf(false) }
+                var errorOnSubmission by remember { mutableStateOf(false) }
 
                 Text("Add Password", color = Color.Gray)
                 Spacer(
@@ -62,7 +63,6 @@ class AddPasswordActivity {
                     singleLine = true,
                     enabled = true,
                     shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 )
 
@@ -77,7 +77,6 @@ class AddPasswordActivity {
                     singleLine = true,
                     enabled = true,
                     shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 )
 
@@ -117,6 +116,15 @@ class AddPasswordActivity {
                         modifier = Modifier.padding(start = 16.dp)
                     )
                 }
+                //This code will be used to determine if password has been submitted successfully
+                if (errorOnSubmission) {
+                    Text(
+                        text = "There was an error on password submission please retry",
+                        color = MaterialTheme.colors.error,
+                        style = MaterialTheme.typography.caption,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
                 Spacer(
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 8.dp)
@@ -140,12 +148,8 @@ class AddPasswordActivity {
                     Button(
                         onClick =
                         {
-                            /*val masterPassword = MainActivity().sessionMasterPassword
-                            textFieldInputIsError = if (databaseHelper.addNewPassword(writeableDB, webAddress,description,password, masterPassword)!! >= 0) {
-                                true
-                            } else {
-                                true
-                            }*/
+                            val masterPassword = LoginActivity().sessionMasterPassword
+                            errorOnSubmission = databaseHelper.addNewPassword(writeableDB, webAddress,description,password, masterPassword)!! < 0
                             webAddress = ""
                             description = ""
                             password = ""
@@ -175,7 +179,7 @@ class AddPasswordActivity {
                     elevation = ButtonDefaults.elevation(pressedElevation = 5.dp),
                     modifier = Modifier
                         .padding(end = 2.dp)
-                        .fillMaxWidth()
+                        .size(width = 200.dp, height = 36.dp)
                 ) {
                     Text(text = "Generate", color = Color.White)
                 }
@@ -210,7 +214,7 @@ class AddPasswordActivity {
 
                         }
                         Spacer(modifier = Modifier.height(24.dp))
-                        Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navController = navController)
+                        Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navController)
                     }
                 }
             ) { contentPadding ->

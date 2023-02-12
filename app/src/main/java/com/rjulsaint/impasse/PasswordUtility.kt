@@ -16,7 +16,7 @@ class PasswordUtility {
 
     fun generate(): String{
         val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9') + '!' + '@'+ '#' + '$' + '%' + '^' + '&' + '*' + '?'
-        val random = SecureRandom.getInstance("NativePRNG")
+        val random = SecureRandom()
         val randomNumberForPasswordGenerator = random.nextInt(50-10) + 10
 
         return random.ints(randomNumberForPasswordGenerator.toLong(), 0, charPool.size)

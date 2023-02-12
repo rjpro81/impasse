@@ -12,7 +12,7 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
             ("CREATE TABLE IF NOT EXISTS ImpasseUser (id INTEGER PRIMARY KEY AUTOINCREMENT, userName TEXT NOT NULL, masterPassword TEXT NOT NULL)")
         db?.execSQL(createUserTable)
         val createPasswordTable =
-            ("CREATE TABLE IF NOT EXISTS ImpassePassword (id INTEGER PRIMARY KEY AUTOINCREMENT,webAddress TEXT,description TEXT,login TEXT,password TEXT NOT NULL,masterPassword TEXT NOT NULL REFERENCES ImpasseUser)")
+            ("CREATE TABLE IF NOT EXISTS ImpassePassword (id INTEGER PRIMARY KEY AUTOINCREMENT,webAddress TEXT NOT NULL,description TEXT,login TEXT,password TEXT NOT NULL,masterPassword TEXT NOT NULL REFERENCES ImpasseUser)")
         db?.execSQL(createPasswordTable)
 
         db?.close()
@@ -32,13 +32,13 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         db?.close()
         return result
     }
-/*
+
     fun addNewPassword(db: SQLiteDatabase?, webAddress: String, description: String, password: String, masterPassword: String) : Long? {
         val result = db?.insert("ImpassePassword",null, contentValuesOf(Pair("webAddress",webAddress), Pair("description", description), Pair("password", password), Pair("masterPassword", masterPassword)))
         db?.close()
         return result
     }
-*/
+
     fun deleteAll(db: SQLiteDatabase?){
         db?.execSQL("DROP TABLE IF EXISTS ImpasseUser")
         db?.execSQL("DROP TABLE IF EXISTS ImpassePassword")
@@ -48,7 +48,6 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
 
     fun getAllUserStoredPasswords(db: SQLiteDatabase?, masterPassword: String) : MutableList<List<String>>{
         val result = db?.query(
-            true,
             "ImpassePassword",
             arrayOf("webAddress", "description", "password"),
             "masterPassword = ?",
@@ -61,19 +60,19 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
 
         val recordsList : MutableList<List<String>> = mutableListOf()
 
-        while(result != null) {
-            val record: MutableList<String> = mutableListOf(
-                result.getString(0),
-                result.getString(1),
-                result.getString(2)
-            )
-            recordsList.add(record)
-            result.moveToNext()
+        if(result!!.moveToFirst()){
+            do{
+                val record: MutableList<String> = mutableListOf(
+                    result.getString(0),
+                    result.getString(1),
+                    result.getString(2)
+                )
+                recordsList.add(record)
+            }while(result.moveToNext())
         }
 
-        result?.close()
+        result.close()
         return recordsList
-
     }
 
     fun masterPasswordLogin(db: SQLiteDatabase?, masterPassword: String, userName: String): Boolean {

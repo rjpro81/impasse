@@ -20,7 +20,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
 class NewUserActivity {
@@ -176,9 +175,10 @@ class NewUserActivity {
                                 hasUserName = false
                             } else if(masterPassword != confirmingPassword) {
                                 matchingPassword = false
-                            } else if (databaseHelper.addNewUser(writeableDB, userName, masterPassword)!! >= 0 && masterPassword != "") {
+                            } else if (databaseHelper.addNewUser(writeableDB, userName, masterPassword)!! >= 0 && masterPassword != "" && userName != "" && confirmingPassword != "") {
                                 navHostController.navigate(ScreenNavigation.Login.route)
                             }
+
                             userName = ""
                             masterPassword = ""
                             confirmingPassword = ""
@@ -203,7 +203,7 @@ class NewUserActivity {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
-            val navController = rememberNavController()
+            //val navHostController = rememberNavController()
             Scaffold(
                 topBar = { AppBar().TopBar(coroutineScope = coroutineScope, scaffoldState = scaffoldState) },
                 scaffoldState = scaffoldState,
@@ -225,7 +225,7 @@ class NewUserActivity {
 
                         }
                         Spacer(modifier = Modifier.height(24.dp))
-                        Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navController = navController)
+                        Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
                     }
                 }
             ) { contentPadding ->

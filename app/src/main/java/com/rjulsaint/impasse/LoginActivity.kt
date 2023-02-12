@@ -20,10 +20,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
 class LoginActivity {
+    var sessionUser = ""
     var sessionMasterPassword = ""
     @Composable
     private fun DisplayLoginFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
@@ -122,15 +122,17 @@ class LoginActivity {
                         onClick =
                         {
                             if (databaseHelper.masterPasswordLogin(readableDB, password, userName)) {
+                                sessionUser = userName
                                 sessionMasterPassword = password
                                 navHostController.navigate(ScreenNavigation.AddPassword.route)
                             } else {
                                 textFieldInputIsError = true
                             }
+
+                            userName = ""
                             password = ""
                             readableDB.close()
                             writeableDB.close()
-                            navHostController.navigate(ScreenNavigation.NewUser.route)
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
@@ -149,7 +151,7 @@ class LoginActivity {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
-            val navController = rememberNavController()
+            //val navHostController = rememberNavController()
             Scaffold(
                 topBar = { AppBar().TopBar(coroutineScope = coroutineScope, scaffoldState = scaffoldState) },
                 scaffoldState = scaffoldState,
@@ -171,7 +173,7 @@ class LoginActivity {
 
                         }
                         Spacer(modifier = Modifier.height(24.dp))
-                        Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navController = navController)
+                        Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
                     }
                 }
             ) { contentPadding ->
