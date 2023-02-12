@@ -43,8 +43,12 @@ class NewUserActivity {
             ) {
                 var userName by remember { mutableStateOf("") }
                 var masterPassword by remember { mutableStateOf("") }
+                var confirmingPassword by remember { mutableStateOf("") }
                 var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
                 var passwordVisible by remember { mutableStateOf(false) }
+                var confirmPasswordVisible by remember { mutableStateOf(false) }
+                var matchingPassword by remember { mutableStateOf(true) }
+                var hasUserName by remember { mutableStateOf(true) }
 
                 Text("New User", color = Color.Gray)
                 Spacer(
@@ -79,9 +83,9 @@ class NewUserActivity {
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     trailingIcon = {
                         val image = if(passwordVisible){
-                            painterResource(id = R.drawable.passwordnotvisibleicon)
-                        } else {
                             painterResource(id = R.drawable.passwordvisibleicon)
+                        } else {
+                            painterResource(id = R.drawable.passwordnotvisibleicon)
                         }
                         val description = if (passwordVisible) "Hide password" else "Show password"
 
@@ -91,10 +95,54 @@ class NewUserActivity {
                         }
                     }
                 )
+                OutlinedTextField(
+                    value = confirmingPassword,
+                    label = { Text("Confirm Password") },
+                    onValueChange =
+                    {
+                        confirmingPassword = it
+                    },
+                    singleLine = true,
+                    enabled = true,
+                    shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
+                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        val image = if(confirmPasswordVisible){
+                            painterResource(id = R.drawable.passwordvisibleicon)
+                        } else {
+                            painterResource(id = R.drawable.passwordnotvisibleicon)
+                        }
+                        val description = if (confirmPasswordVisible) "Hide password" else "Show password"
+
+                        // Toggle button to hide or display password
+                        IconButton(onClick = {confirmPasswordVisible = !confirmPasswordVisible}){
+                            Icon(image, description, Modifier.size(30.dp))
+                        }
+                    }
+                )
+                //This code will be used to meet username requirements
+                if (!hasUserName) {
+                    Text(
+                        text = "username must be a minimum of 8 characters",
+                        color = MaterialTheme.colors.error,
+                        style = MaterialTheme.typography.caption,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
                 //This code will be used to meet password requirements
                 if (textFieldInputIsError) {
                     Text(
                         text = "1 uppercase, 1 lowercase letter, 1 special character,\nand minimum 8 characters is required",
+                        color = MaterialTheme.colors.error,
+                        style = MaterialTheme.typography.caption,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
+                //This code will be used to determine of passwords match
+                if (!matchingPassword) {
+                    Text(
+                        text = "The passwords do not match",
                         color = MaterialTheme.colors.error,
                         style = MaterialTheme.typography.caption,
                         modifier = Modifier.padding(start = 16.dp)
@@ -121,15 +169,19 @@ class NewUserActivity {
                     Button(
                         onClick =
                         {
-                           if (databaseHelper.addNewUser(writeableDB, userName, masterPassword)!! >= 0 && masterPassword != "") {
-                               navHostController.navigate(ScreenNavigation.Login.route)
-                            } else if(!PasswordUtility().validate(masterPassword)){
+
+                            if(!PasswordUtility().validate(masterPassword)){
                                 textFieldInputIsError = true
-                            } else {
-                                textFieldInputIsError = true
+                            } else if (userName.length < 8){
+                                hasUserName = false
+                            } else if(masterPassword != confirmingPassword) {
+                                matchingPassword = false
+                            } else if (databaseHelper.addNewUser(writeableDB, userName, masterPassword)!! >= 0 && masterPassword != "") {
+                                navHostController.navigate(ScreenNavigation.Login.route)
                             }
                             userName = ""
                             masterPassword = ""
+                            confirmingPassword = ""
                             readableDB.close()
                             writeableDB.close()
                         },

@@ -42,7 +42,8 @@ class LoginActivity {
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                var text by remember { mutableStateOf("") }
+                var password by remember { mutableStateOf("") }
+                var userName by remember { mutableStateOf("") }
                 var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
                 var passwordVisible by remember { mutableStateOf(false) }
 
@@ -52,11 +53,23 @@ class LoginActivity {
                         .padding(top = 8.dp, bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = text,
+                    value = userName,
+                    label = { Text("Username") },
+                    onValueChange =
+                    {
+                        userName = it
+                    },
+                    singleLine = true,
+                    enabled = true,
+                    shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                )
+                OutlinedTextField(
+                    value = password,
                     label = { Text("Master Password") },
                     onValueChange =
                     {
-                        text = it
+                        password = it
                         textFieldInputIsError = false
                     },
                     singleLine = true,
@@ -66,9 +79,9 @@ class LoginActivity {
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     trailingIcon = {
                         val image = if(passwordVisible){
-                            painterResource(id = R.drawable.passwordnotvisibleicon)
-                        } else {
                             painterResource(id = R.drawable.passwordvisibleicon)
+                        } else {
+                            painterResource(id = R.drawable.passwordnotvisibleicon)
                         }
                         val description = if (passwordVisible) "Hide password" else "Show password"
 
@@ -108,13 +121,13 @@ class LoginActivity {
                     Button(
                         onClick =
                         {
-                            if (databaseHelper.masterPasswordLogin(readableDB, text)) {
-                                sessionMasterPassword = text
+                            if (databaseHelper.masterPasswordLogin(readableDB, password, userName)) {
+                                sessionMasterPassword = password
                                 navHostController.navigate(ScreenNavigation.AddPassword.route)
                             } else {
                                 textFieldInputIsError = true
                             }
-                            text = ""
+                            password = ""
                             readableDB.close()
                             writeableDB.close()
                             navHostController.navigate(ScreenNavigation.NewUser.route)

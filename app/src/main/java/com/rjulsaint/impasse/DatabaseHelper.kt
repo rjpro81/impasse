@@ -9,15 +9,11 @@ import androidx.core.content.contentValuesOf
 class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseDatabase", null, 1) {
     override fun onCreate(db: SQLiteDatabase?) {
         val createUserTable =
-            ("CREATE TABLE IF NOT EXISTS ImpasseUser (id INTEGER PRIMARY KEY AUTOINCREMENT, userName TEXT NOT NULL, masterPassword TEXT NOT NULL REFERENCES MasterPassword)")
+            ("CREATE TABLE IF NOT EXISTS ImpasseUser (id INTEGER PRIMARY KEY AUTOINCREMENT, userName TEXT NOT NULL, masterPassword TEXT NOT NULL)")
         db?.execSQL(createUserTable)
         val createPasswordTable =
-            ("CREATE TABLE IF NOT EXISTS ImpassePassword (id INTEGER PRIMARY KEY AUTOINCREMENT,webAddress TEXT,description TEXT,login TEXT,password TEXT NOT NULL,masterPassword TEXT NOT NULL REFERENCES MasterPassword)")
+            ("CREATE TABLE IF NOT EXISTS ImpassePassword (id INTEGER PRIMARY KEY AUTOINCREMENT,webAddress TEXT,description TEXT,login TEXT,password TEXT NOT NULL,masterPassword TEXT NOT NULL REFERENCES ImpasseUser)")
         db?.execSQL(createPasswordTable)
-
-        val createMasterPasswordTable =
-            ("CREATE TABLE IF NOT EXISTS ImpasseMasterPassword (id INTEGER PRIMARY KEY AUTOINCREMENT,masterPassword TEXT NOT NULL)")
-        db?.execSQL(createMasterPasswordTable)
 
         db?.close()
     }
@@ -26,8 +22,6 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         db?.execSQL("DROP TABLE IF EXISTS ImpasseUser")
         onCreate(db)
         db?.execSQL("DROP TABLE IF EXISTS ImpassePassword")
-        onCreate(db)
-        db?.execSQL("DROP TABLE IF EXISTS ImpasseMasterPassword")
         onCreate(db)
 
         db?.close()
@@ -44,18 +38,14 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         db?.close()
         return result
     }
-
+*/
     fun deleteAll(db: SQLiteDatabase?){
         db?.execSQL("DROP TABLE IF EXISTS ImpasseUser")
-        onCreate(db)
         db?.execSQL("DROP TABLE IF EXISTS ImpassePassword")
-        onCreate(db)
-        db?.execSQL("DROP TABLE IF EXISTS ImpasseMasterPassword")
-        onCreate(db)
 
         db?.close()
     }
-*/
+
     fun getAllUserStoredPasswords(db: SQLiteDatabase?, masterPassword: String) : MutableList<List<String>>{
         val result = db?.query(
             true,
@@ -86,13 +76,12 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
 
     }
 
-    fun masterPasswordLogin(db: SQLiteDatabase?, masterPassword: String): Boolean {
+    fun masterPasswordLogin(db: SQLiteDatabase?, masterPassword: String, userName: String): Boolean {
         val result = db?.query(
-            true,
-            "ImpasseMasterPassword",
+            "ImpasseUser",
             arrayOf("masterPassword"),
-            "masterPassword = ?",
-            arrayOf(masterPassword),
+            "masterPassword = ? AND userName = ?",
+            arrayOf(masterPassword, userName),
             null,
             null,
             null,
