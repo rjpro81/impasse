@@ -1,5 +1,6 @@
 package com.rjulsaint.impasse
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 class Drawer {
+    private val tag : String = "Drawer"
     @Composable
     fun AppDrawer(coroutineScope: CoroutineScope, scaffoldState: ScaffoldState, navHostController: NavHostController) {
         val navigationItems = listOf(
@@ -49,7 +51,11 @@ class Drawer {
                             coroutineScope.launch {
                                 scaffoldState.drawerState.close()
                             }
-                            navHostController.navigate(item.route)
+                            try {
+                                navHostController.navigate(item.route)
+                            } catch (ex : java.lang.IllegalArgumentException){
+                                Log.e(tag, "Unable to navigate to selected screen.", ex)
+                            }
                         },
                     backgroundColor = if (selected) Purple500 else Color.White,
                     elevation = 0.dp,

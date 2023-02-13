@@ -1,5 +1,6 @@
 package com.rjulsaint.impasse
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
@@ -23,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
 class AddPasswordActivity {
+    private val tag : String = "AddPasswordActivity"
     @Composable
     private fun DisplayAddPasswordFields(databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
@@ -149,7 +151,17 @@ class AddPasswordActivity {
                         onClick =
                         {
                             val masterPassword = LoginActivity().sessionMasterPassword
-                            errorOnSubmission = databaseHelper.addNewPassword(writeableDB, webAddress,description,password, masterPassword)!! < 0
+                            try {
+                                errorOnSubmission = databaseHelper.addNewPassword(
+                                    writeableDB,
+                                    webAddress,
+                                    description,
+                                    password,
+                                    masterPassword
+                                )!! < 0
+                            } catch (ex : Exception){
+                                Log.e(tag, "Unable to access the database to add new password.", ex)
+                            }
                             webAddress = ""
                             description = ""
                             password = ""

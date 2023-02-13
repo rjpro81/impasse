@@ -1,5 +1,6 @@
 package com.rjulsaint.impasse
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
@@ -25,6 +26,7 @@ import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 class LoginActivity {
     var sessionUser = ""
     var sessionMasterPassword = ""
+    private val tag : String = "LoginActivity"
     @Composable
     private fun DisplayLoginFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
@@ -108,7 +110,11 @@ class LoginActivity {
                     Button(
                         onClick =
                         {
-                            navHostController.navigate(ScreenNavigation.NewUser.route)
+                            try {
+                                navHostController.navigate(ScreenNavigation.NewUser.route)
+                            } catch (ex : IllegalArgumentException){
+                                Log.e(tag, "Unable to navigate to NewUser screen.", ex)
+                            }
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
@@ -121,10 +127,24 @@ class LoginActivity {
                     Button(
                         onClick =
                         {
-                            if (databaseHelper.masterPasswordLogin(readableDB, password, userName)) {
+                            var valid = false
+                            try {
+                                valid = databaseHelper.masterPasswordLogin(
+                                    readableDB,
+                                    password,
+                                    userName
+                                )
+                            } catch(ex : Exception){
+                                Log.e(tag, "Unable to access database to validate user profile.", ex)
+                            }
+                            if (valid) {
                                 sessionUser = userName
                                 sessionMasterPassword = password
-                                navHostController.navigate(ScreenNavigation.AddPassword.route)
+                                try {
+                                    navHostController.navigate(ScreenNavigation.AddPassword.route)
+                                } catch (ex : IllegalArgumentException){
+                                    Log.e(tag, "Unable to navigate to AddPasswordActivity screen.", ex)
+                                }
                             } else {
                                 textFieldInputIsError = true
                             }

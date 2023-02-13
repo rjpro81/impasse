@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ImPasseTheme {
                 val databaseHelper = DatabaseHelper(this)
-                databaseHelper.deleteAll(databaseHelper.writableDatabase)
+                //databaseHelper.deleteAll(databaseHelper.writableDatabase)
                 databaseHelper.onCreate(databaseHelper.writableDatabase)
                 val navHostController = rememberNavController()
                 Surface(

@@ -1,5 +1,6 @@
 package com.rjulsaint.impasse
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -19,6 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 class ViewPasswordsActivity {
+    private val tag : String = "ViewPasswordActivity"
     @Composable
     private fun DisplayViewPasswordFields(databaseHelper: DatabaseHelper, coroutineScope: CoroutineScope, scaffoldState: ScaffoldState){
         val focusManager = LocalFocusManager.current
@@ -40,9 +42,16 @@ class ViewPasswordsActivity {
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 8.dp)
                 )
-
-                val passwordsList = databaseHelper.getAllUserStoredPasswords(readableDB, LoginActivity().sessionMasterPassword)
-                passwordsList.forEach { password ->
+                var passwordsList : MutableList<List<String>>? = null
+                try {
+                    passwordsList = databaseHelper.getAllUserStoredPasswords(
+                        readableDB,
+                        LoginActivity().sessionMasterPassword
+                    )
+                } catch(ex : Exception){
+                    Log.e(tag, "Unable to access database to retrieve a list of all passwords.", ex)
+                }
+                passwordsList!!.forEach { password ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()

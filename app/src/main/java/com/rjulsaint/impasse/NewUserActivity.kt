@@ -1,5 +1,6 @@
 package com.rjulsaint.impasse
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
@@ -23,6 +24,7 @@ import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
 class NewUserActivity {
+    private val tag : String = "NewUserActivity"
     @Composable
     private fun DisplayUsernameFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
@@ -155,7 +157,11 @@ class NewUserActivity {
                     Button(
                         onClick =
                         {
-                            navHostController.navigate(ScreenNavigation.Login.route)
+                            try {
+                                navHostController.navigate(ScreenNavigation.Login.route)
+                            } catch(ex : IllegalArgumentException){
+                                Log.e(tag, "Unable to navigate to Login screen.", ex)
+                            }
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
@@ -168,6 +174,12 @@ class NewUserActivity {
                     Button(
                         onClick =
                         {
+                            var result : Long? = null
+                            try {
+                                result = databaseHelper.addNewUser(writeableDB, userName, masterPassword)
+                            } catch (ex : Exception){
+                                Log.e(tag, "Unable to access database to add new user.", ex)
+                            }
 
                             if(!PasswordUtility().validate(masterPassword)){
                                 textFieldInputIsError = true
@@ -175,7 +187,7 @@ class NewUserActivity {
                                 hasUserName = false
                             } else if(masterPassword != confirmingPassword) {
                                 matchingPassword = false
-                            } else if (databaseHelper.addNewUser(writeableDB, userName, masterPassword)!! >= 0 && masterPassword != "" && userName != "" && confirmingPassword != "") {
+                            } else if (result!! >= 0 && masterPassword != "") {
                                 navHostController.navigate(ScreenNavigation.Login.route)
                             }
 
