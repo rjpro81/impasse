@@ -1,6 +1,7 @@
 package com.rjulsaint.impasse
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -11,18 +12,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 class ViewPasswordsActivity {
     private val tag : String = "ViewPasswordActivity"
     @Composable
-    private fun DisplayViewPasswordFields(databaseHelper: DatabaseHelper, coroutineScope: CoroutineScope, scaffoldState: ScaffoldState){
+    private fun DisplayViewPasswordFields(databaseHelper: DatabaseHelper){
         val focusManager = LocalFocusManager.current
         val readableDB = databaseHelper.readableDatabase
         Row(
@@ -55,20 +56,16 @@ class ViewPasswordsActivity {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(4.dp)
-                            .clickable {
-                                coroutineScope.launch {
-                                    scaffoldState.drawerState.close()
-                                }
-                            },
+                            .padding(4.dp),
                         elevation = 0.dp,
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        backgroundColor = Color.LightGray
                     ) {
-                        Row(
+                        Column(
                             modifier = Modifier
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start,
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
                                 modifier = Modifier
@@ -116,7 +113,19 @@ class ViewPasswordsActivity {
                                 .clip(CircleShape),
                             contentAlignment = Alignment.Center,
                         ) {
+                            Image(
+                                modifier = Modifier
+                                    .matchParentSize(),
+                                painter = painterResource(id = R.drawable.ic_launcher_background),
+                                contentDescription = "",
+                            )
 
+                            Image(
+                                modifier = Modifier
+                                    .scale(1.4f),
+                                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                                contentDescription = "",
+                            )
                         }
                         Spacer(modifier = Modifier.height(24.dp))
                         Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
@@ -124,7 +133,7 @@ class ViewPasswordsActivity {
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {
-                    DisplayViewPasswordFields(databaseHelper, coroutineScope, scaffoldState)
+                    DisplayViewPasswordFields(databaseHelper)
                 }
             }
         }

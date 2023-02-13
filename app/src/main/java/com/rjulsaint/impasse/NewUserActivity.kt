@@ -1,6 +1,7 @@
 package com.rjulsaint.impasse
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
@@ -13,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -159,7 +161,7 @@ class NewUserActivity {
                         {
                             try {
                                 navHostController.navigate(ScreenNavigation.Login.route)
-                            } catch(ex : IllegalArgumentException){
+                            } catch(ex : Exception){
                                 Log.e(tag, "Unable to navigate to Login screen.", ex)
                             }
                         },
@@ -234,7 +236,19 @@ class NewUserActivity {
                                 .clip(CircleShape),
                             contentAlignment = Alignment.Center,
                         ) {
+                            Image(
+                                modifier = Modifier
+                                    .matchParentSize(),
+                                painter = painterResource(id = R.drawable.ic_launcher_background),
+                                contentDescription = "",
+                            )
 
+                            Image(
+                                modifier = Modifier
+                                    .scale(1.4f),
+                                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                                contentDescription = "",
+                            )
                         }
                         Spacer(modifier = Modifier.height(24.dp))
                         Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)

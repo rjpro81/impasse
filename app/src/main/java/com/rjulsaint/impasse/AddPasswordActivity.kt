@@ -1,6 +1,7 @@
 package com.rjulsaint.impasse
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
@@ -13,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -20,7 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
 class AddPasswordActivity {
@@ -200,11 +202,12 @@ class AddPasswordActivity {
     }
 
     @Composable
-    fun DisplayAddPasswordScreen(databaseHelper: DatabaseHelper) {
+    fun DisplayAddPasswordScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
+            //val scaffoldState = rememberScaffoldState()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
-            val navController = rememberNavController()
+            //val navController = rememberNavController()
             Scaffold(
                 topBar = { AppBar().TopBar(coroutineScope = coroutineScope, scaffoldState = scaffoldState) },
                 scaffoldState = scaffoldState,
@@ -223,10 +226,22 @@ class AddPasswordActivity {
                                 .clip(CircleShape),
                             contentAlignment = Alignment.Center,
                         ) {
+                            Image(
+                                modifier = Modifier
+                                    .matchParentSize(),
+                                painter = painterResource(id = R.drawable.ic_launcher_background),
+                                contentDescription = "",
+                            )
 
+                            Image(
+                                modifier = Modifier
+                                    .scale(1.4f),
+                                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                                contentDescription = "",
+                            )
                         }
                         Spacer(modifier = Modifier.height(24.dp))
-                        Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navController)
+                        Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
                     }
                 }
             ) { contentPadding ->

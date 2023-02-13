@@ -17,6 +17,7 @@ class NavigationGraph {
             }
             composable(route = ScreenNavigation.AddPassword.route){
                 AddPasswordActivity().DisplayAddPasswordScreen(
+                    navHostController = navHostController,
                     databaseHelper = databaseHelper
                 )
             }

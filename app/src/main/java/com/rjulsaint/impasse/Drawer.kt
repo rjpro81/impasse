@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -44,16 +43,13 @@ class Drawer {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(4.dp)
-                        .clickable(
-                            enabled = true,
-                            role = Role.Button,
-                        ) {
+                        .clickable{
                             coroutineScope.launch {
                                 scaffoldState.drawerState.close()
                             }
                             try {
                                 navHostController.navigate(item.route)
-                            } catch (ex : java.lang.IllegalArgumentException){
+                            } catch (ex: Exception) {
                                 Log.e(tag, "Unable to navigate to selected screen.", ex)
                             }
                         },
