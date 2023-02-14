@@ -175,40 +175,47 @@ class LoginActivity {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
             Scaffold(
-                topBar = { AppBar().TopBar(coroutineScope = coroutineScope, scaffoldState = scaffoldState, databaseHelper = databaseHelper, builder = builder) },
+                topBar = { AppBar().TopBar(
+                    coroutineScope = coroutineScope,
+                    scaffoldState = scaffoldState,
+                    databaseHelper = databaseHelper,
+                    builder = builder,
+                    navHostController = navHostController
+                ) },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,
                 drawerGesturesEnabled = true,
                 drawerContent = {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(start = 8.dp, top = 32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Box(
+                    if(navHostController.currentBackStackEntry?.destination?.route != "login_screen")
+                        Column(
                             modifier = Modifier
-                                .size(126.dp)
-                                .clip(CircleShape),
-                            contentAlignment = Alignment.Center,
+                                .fillMaxSize()
+                                .padding(start = 8.dp, top = 32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Image(
+                            Box(
                                 modifier = Modifier
-                                    .matchParentSize(),
-                                painter = painterResource(id = R.drawable.ic_launcher_background),
-                                contentDescription = "",
-                            )
+                                    .size(126.dp)
+                                    .clip(CircleShape),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Image(
+                                    modifier = Modifier
+                                        .matchParentSize(),
+                                    painter = painterResource(id = R.drawable.ic_launcher_background),
+                                    contentDescription = "",
+                                )
 
-                            Image(
-                                modifier = Modifier
-                                    .scale(1.4f),
-                                painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                                contentDescription = "",
-                            )
+                                Image(
+                                    modifier = Modifier
+                                        .scale(1.4f),
+                                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                                    contentDescription = "",
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
                         }
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
-                    }
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {

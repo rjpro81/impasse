@@ -7,19 +7,27 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 class AppBar {
     private val tag : String = "AppBar"
     @Composable
-    fun TopBar(coroutineScope:CoroutineScope, scaffoldState:ScaffoldState, databaseHelper: DatabaseHelper, builder : Builder){
+    fun TopBar(
+        coroutineScope: CoroutineScope,
+        scaffoldState: ScaffoldState,
+        databaseHelper: DatabaseHelper,
+        builder: Builder,
+        navHostController: NavHostController
+    ){
         TopAppBar(
             actions = {
                 IconButton(onClick = {
@@ -28,8 +36,12 @@ class AppBar {
                     } catch(ex : Exception){
                         Log.e(tag, "Unable to display alert dialog.", ex)
                     }
-                }){
+                },enabled = (navHostController.currentBackStackEntry?.destination?.route != "login_screen") && (navHostController.currentBackStackEntry?.destination?.route != "newUser_screen")){
                     Icon(Icons.Rounded.Delete, "Delete Icon")
+                }
+
+                IconButton(onClick = {}){
+                    Icon(Icons.Rounded.Settings, "Settings Icon")
                 }
             },
             title = {
@@ -60,7 +72,7 @@ class AppBar {
             builder.setPositiveButton("Yes") {
                 // When the user click yes button then app will close
                 _, _ ->
-                databaseHelper.deleteAll(databaseHelper.writableDatabase)
+                databaseHelper.deleteAllPasswords(databaseHelper.writableDatabase)
             }
         } catch(ex : java.lang.Exception){
             Log.e(tag, "Unable to access the dagabase to delete all records.", ex)

@@ -39,9 +39,8 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         return result
     }
 
-    fun deleteAll(db: SQLiteDatabase?){
-        db?.execSQL("DROP TABLE IF EXISTS ImpasseUser")
-        db?.execSQL("DROP TABLE IF EXISTS ImpassePassword")
+    fun deleteAllPasswords(db: SQLiteDatabase?){
+        db?.execSQL("Delete From ImpassePassword")
 
         db?.close()
     }

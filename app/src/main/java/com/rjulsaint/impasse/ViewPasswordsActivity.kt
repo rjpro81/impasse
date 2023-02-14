@@ -97,7 +97,13 @@ class ViewPasswordsActivity {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
             Scaffold(
-                topBar = { AppBar().TopBar(coroutineScope = coroutineScope, scaffoldState = scaffoldState, databaseHelper = databaseHelper, builder = builder) },
+                topBar = { AppBar().TopBar(
+                    coroutineScope = coroutineScope,
+                    scaffoldState = scaffoldState,
+                    databaseHelper = databaseHelper,
+                    builder = builder,
+                    navHostController = navHostController
+                ) },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,
                 drawerGesturesEnabled = true,
