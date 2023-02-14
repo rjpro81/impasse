@@ -1,6 +1,7 @@
 package com.rjulsaint.impasse
 
 import android.util.Log
+import androidx.appcompat.app.AlertDialog.Builder
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -91,12 +92,12 @@ class ViewPasswordsActivity {
     }
 
     @Composable
-    fun ViewPasswordsScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
+    fun ViewPasswordsScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper, builder : Builder) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
             Scaffold(
-                topBar = { AppBar().TopBar(coroutineScope = coroutineScope, scaffoldState = scaffoldState) },
+                topBar = { AppBar().TopBar(coroutineScope = coroutineScope, scaffoldState = scaffoldState, databaseHelper = databaseHelper, builder = builder) },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,
                 drawerGesturesEnabled = true,
