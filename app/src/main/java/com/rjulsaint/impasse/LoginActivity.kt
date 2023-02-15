@@ -36,7 +36,6 @@ class LoginActivity {
     private fun DisplayLoginFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
-        val writeableDB = databaseHelper.writableDatabase
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -135,7 +134,7 @@ class LoginActivity {
                             var valid = false
                             try {
                                 valid = databaseHelper.masterPasswordLogin(
-                                    writeableDB,
+                                    databaseHelper.writeableDB,
                                     password,
                                     userName
                                 )
@@ -157,8 +156,8 @@ class LoginActivity {
 
                             userName = ""
                             password = ""
-                            writeableDB.close()
-                            writeableDB.close()
+                            databaseHelper.writeableDB.close()
+                            databaseHelper.writeableDB.close()
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),

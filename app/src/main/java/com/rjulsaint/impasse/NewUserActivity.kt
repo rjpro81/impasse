@@ -31,7 +31,6 @@ class NewUserActivity {
     @Composable
     private fun DisplayUsernameFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
-        val writeableDB = databaseHelper.writableDatabase
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -178,7 +177,7 @@ class NewUserActivity {
                         {
                             var result : Long? = null
                             try {
-                                result = databaseHelper.addNewUser(writeableDB, userName, masterPassword)
+                                result = databaseHelper.addNewUser(databaseHelper.writeableDB, userName, masterPassword)
                             } catch (ex : Exception){
                                 Log.e(tag, "Unable to access database to add new user.", ex)
                             }
@@ -196,7 +195,7 @@ class NewUserActivity {
                             userName = ""
                             masterPassword = ""
                             confirmingPassword = ""
-                            writeableDB.close()
+                            databaseHelper.writeableDB.close()
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),

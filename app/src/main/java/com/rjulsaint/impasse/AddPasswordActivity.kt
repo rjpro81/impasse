@@ -31,7 +31,6 @@ class AddPasswordActivity {
     @Composable
     private fun DisplayAddPasswordFields(databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
-        val writeableDB = databaseHelper.writableDatabase
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -155,7 +154,7 @@ class AddPasswordActivity {
                             val masterPassword = LoginActivity().sessionMasterPassword
                             try {
                                 errorOnSubmission = databaseHelper.addNewPassword(
-                                    writeableDB,
+                                    databaseHelper.writeableDB,
                                     webAddress,
                                     description,
                                     password,
@@ -167,7 +166,7 @@ class AddPasswordActivity {
                             webAddress = ""
                             description = ""
                             password = ""
-                            writeableDB.close()
+                            databaseHelper.writeableDB.close()
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),

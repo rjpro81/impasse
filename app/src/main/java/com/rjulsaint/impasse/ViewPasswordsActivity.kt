@@ -34,7 +34,7 @@ class ViewPasswordsActivity {
         val context = LocalContext.current
         val clipboardManager = LocalClipboardManager.current
         val focusManager = LocalFocusManager.current
-        val writeableDB = databaseHelper.writableDatabase
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -55,10 +55,10 @@ class ViewPasswordsActivity {
                 var passwordsList : MutableList<List<String>>? = null
                 try {
                     passwordsList = databaseHelper.getAllUserStoredPasswords(
-                        writeableDB,
+                        databaseHelper.writeableDB,
                         LoginActivity().sessionMasterPassword
                     )
-                    writeableDB.close()
+                    databaseHelper.writeableDB.close()
                 } catch(ex : Exception){
                     Log.e(tag, "Unable to access database to retrieve a list of all passwords.", ex)
                 }
@@ -112,7 +112,7 @@ class ViewPasswordsActivity {
                                     Icon(painterResource(id = R.drawable.outline_content_copy_24), "Copy Contents", Modifier.size(30.dp))
                                 }
                                 IconButton(onClick = {
-                                    onDeletePress(alertDialogBuilder, databaseHelper, password[0], password[1])
+                                    databaseHelper.onDeletePress(databaseHelper, alertDialogBuilder, false,"Are you sure you want to delete password?", "Unable to access database to delete password.", password[0], password[1])
                                     clipboardManager.setText(
                                         AnnotatedString(password[2])); Toast.makeText(context, "Password deleted", Toast.LENGTH_SHORT).show()
                                 }) {
@@ -181,28 +181,5 @@ class ViewPasswordsActivity {
                 }
             }
         }
-    }
-
-    private fun onDeletePress(builder : Builder, databaseHelper: DatabaseHelper, webAddress: String, description : String){
-        builder.setMessage("Are you sure you want to delete password?")
-        builder.setTitle("Alert!!")
-        builder.setCancelable(false)
-        try {
-            builder.setPositiveButton("Yes") {
-                // When the user click yes button then app will close
-                    _, _ ->
-                databaseHelper.deletePassword(databaseHelper.writableDatabase, webAddress, description)
-            }
-        } catch(ex : java.lang.Exception){
-            Log.e(tag, "Unable to access the database to delete password.", ex)
-        }
-
-        builder.setNegativeButton("No") {
-            // If user click no then dialog box is canceled.
-                dialog, _ -> dialog.cancel()
-        }
-
-        val alertDialog = builder.create()
-        alertDialog.show()
     }
 }

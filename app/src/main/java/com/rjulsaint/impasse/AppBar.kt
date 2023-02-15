@@ -32,7 +32,7 @@ class AppBar {
             actions = {
                 IconButton(onClick = {
                     try {
-                        onDeletePress(builder, databaseHelper)
+                        databaseHelper.onDeletePress(databaseHelper, builder, true,"Are you sure you want to delete all passwords?", "Unable to access database to delete passwords.")
                     } catch(ex : Exception){
                         Log.e(tag, "Unable to display alert dialog.", ex)
                     }
@@ -62,28 +62,5 @@ class AppBar {
                 }
             },
         )
-    }
-
-    private fun onDeletePress(builder : Builder, databaseHelper: DatabaseHelper){
-        builder.setMessage("Are you sure you want to delete all passwords?")
-        builder.setTitle("Alert!!")
-        builder.setCancelable(false)
-        try {
-            builder.setPositiveButton("Yes") {
-                // When the user click yes button then app will close
-                _, _ ->
-                databaseHelper.deleteAllPasswords(databaseHelper.writableDatabase)
-            }
-        } catch(ex : java.lang.Exception){
-            Log.e(tag, "Unable to access the dagabase to delete all records.", ex)
-        }
-
-        builder.setNegativeButton("No") {
-            // If user click no then dialog box is canceled.
-                dialog, _ -> dialog.cancel()
-        }
-
-        val alertDialog = builder.create()
-        alertDialog.show()
     }
 }

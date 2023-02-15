@@ -4,9 +4,13 @@ import android.content.Context
 import android.database.CursorIndexOutOfBoundsException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.contentValuesOf
 
 class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseDatabase", null, 1) {
+    private val tag : String = "DatabaseHelper"
+    val writeableDB = this.writableDatabase
     override fun onCreate(db: SQLiteDatabase?) {
         val createUserTable =
             ("CREATE TABLE IF NOT EXISTS ImpasseUser (id INTEGER PRIMARY KEY AUTOINCREMENT, userName TEXT NOT NULL, masterPassword TEXT NOT NULL)")
@@ -50,11 +54,11 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         )
     }
 
-    fun deleteAllPasswords(db: SQLiteDatabase?){
+    private fun deleteAllPasswords(db: SQLiteDatabase?){
         db?.execSQL("Delete From ImpassePassword")
     }
 
-    fun deletePassword(db : SQLiteDatabase?, webAddress: String, description: String){
+    private fun deletePassword(db : SQLiteDatabase?, webAddress: String, description: String){
         db?.execSQL("Delete From ImpassePassword WHERE webAddress = '$webAddress' AND description = '$description'")
     }
 
@@ -107,5 +111,32 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         }
         result?.close()
         return valid
+    }
+
+    fun onDeletePress(databaseHelper: DatabaseHelper, builder : AlertDialog.Builder, tableClearDown : Boolean = false,setMessage : String, errorMessage : String, webAddress: String? = null, description: String? = null){
+        builder.setMessage(setMessage)
+        builder.setTitle("Alert!!")
+        builder.setCancelable(false)
+        try {
+            builder.setPositiveButton("Yes") {
+                // When the user click yes button then app will close
+                    _, _ ->
+                if(tableClearDown) {
+                    databaseHelper.deleteAllPasswords(databaseHelper.writableDatabase)
+                } else {
+                    databaseHelper.deletePassword(databaseHelper.writableDatabase, webAddress!!, description!!)
+                }
+            }
+        } catch(ex : java.lang.Exception){
+            Log.e(tag, errorMessage, ex)
+        }
+
+        builder.setNegativeButton("No") {
+            // If user click no then dialog box is canceled.
+                dialog, _ -> dialog.cancel()
+        }
+
+        val alertDialog = builder.create()
+        alertDialog.show()
     }
 }
