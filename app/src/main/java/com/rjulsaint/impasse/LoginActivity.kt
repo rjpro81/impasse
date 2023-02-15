@@ -1,6 +1,7 @@
 package com.rjulsaint.impasse
 
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog.Builder
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,6 +35,7 @@ class LoginActivity {
     @Composable
     private fun DisplayLoginFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
+        val context = LocalContext.current
         val writeableDB = databaseHelper.writableDatabase
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -83,9 +86,9 @@ class LoginActivity {
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     trailingIcon = {
                         val image = if(passwordVisible){
-                            painterResource(id = R.drawable.passwordvisibleicon)
+                            painterResource(id = R.drawable.baseline_visibility_24)
                         } else {
-                            painterResource(id = R.drawable.passwordnotvisibleicon)
+                            painterResource(id = R.drawable.baseline_visibility_off_24)
                         }
                         val description = if (passwordVisible) "Hide password" else "Show password"
 
@@ -142,6 +145,7 @@ class LoginActivity {
                             if (valid) {
                                 sessionUser = userName
                                 sessionMasterPassword = password
+                                Toast.makeText(context, "Logged in successfully", Toast.LENGTH_SHORT).show()
                                 try {
                                     navHostController.navigate(ScreenNavigation.AddPassword.route)
                                 } catch (ex : IllegalArgumentException){

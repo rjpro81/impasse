@@ -1,6 +1,7 @@
 package com.rjulsaint.impasse
 
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog.Builder
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -14,17 +15,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
+
 class ViewPasswordsActivity {
     private val tag : String = "ViewPasswordActivity"
     @Composable
     private fun DisplayViewPasswordFields(databaseHelper: DatabaseHelper){
+        val alertDialogBuilder = Builder(LocalContext.current)
+        val context = LocalContext.current
+        val clipboardManager = LocalClipboardManager.current
         val focusManager = LocalFocusManager.current
         val writeableDB = databaseHelper.writableDatabase
         Row(
@@ -89,9 +97,9 @@ class ViewPasswordsActivity {
                                 overflow = TextOverflow.Visible
                             )
                             val image = if(passwordVisible){
-                                painterResource(id = R.drawable.passwordvisibleicon)
+                                painterResource(id = R.drawable.baseline_visibility_24)
                             } else {
-                                painterResource(id = R.drawable.passwordnotvisibleicon)
+                                painterResource(id = R.drawable.baseline_visibility_off_24)
                             }
                             val description = if (passwordVisible) "Hide password" else "Show password"
                             Row {
@@ -99,8 +107,16 @@ class ViewPasswordsActivity {
                                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                     Icon(image, description, Modifier.size(30.dp))
                                 }
-                                IconButton(onClick = {}){
-                                    //Icon()
+                                IconButton(onClick = { clipboardManager.setText(
+                                    AnnotatedString(password[2])); Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show() }){
+                                    Icon(painterResource(id = R.drawable.outline_content_copy_24), "Copy Contents", Modifier.size(30.dp))
+                                }
+                                IconButton(onClick = {
+                                    onDeletePress(alertDialogBuilder, databaseHelper, password[0], password[1])
+                                    clipboardManager.setText(
+                                        AnnotatedString(password[2])); Toast.makeText(context, "Password deleted", Toast.LENGTH_SHORT).show()
+                                }) {
+                                    Icon(painterResource(id = R.drawable.baseline_delete_24), "Delete Password", Modifier.size(30.dp))
                                 }
                             }
 
@@ -165,5 +181,28 @@ class ViewPasswordsActivity {
                 }
             }
         }
+    }
+
+    private fun onDeletePress(builder : Builder, databaseHelper: DatabaseHelper, webAddress: String, description : String){
+        builder.setMessage("Are you sure you want to delete password?")
+        builder.setTitle("Alert!!")
+        builder.setCancelable(false)
+        try {
+            builder.setPositiveButton("Yes") {
+                // When the user click yes button then app will close
+                    _, _ ->
+                databaseHelper.deletePassword(databaseHelper.writableDatabase, webAddress, description)
+            }
+        } catch(ex : java.lang.Exception){
+            Log.e(tag, "Unable to access the database to delete password.", ex)
+        }
+
+        builder.setNegativeButton("No") {
+            // If user click no then dialog box is canceled.
+                dialog, _ -> dialog.cancel()
+        }
+
+        val alertDialog = builder.create()
+        alertDialog.show()
     }
 }

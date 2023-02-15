@@ -14,6 +14,7 @@ import androidx.appcompat.app.AlertDialog
 
 class MainActivity : AppCompatActivity() {
     private val tag : String = "MainActivity"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

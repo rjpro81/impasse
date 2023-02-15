@@ -52,7 +52,10 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
 
     fun deleteAllPasswords(db: SQLiteDatabase?){
         db?.execSQL("Delete From ImpassePassword")
+    }
 
+    fun deletePassword(db : SQLiteDatabase?, webAddress: String, description: String){
+        db?.execSQL("Delete From ImpassePassword WHERE webAddress = '$webAddress' AND description = '$description'")
     }
 
     fun getAllUserStoredPasswords(db: SQLiteDatabase?, masterPassword: String) : MutableList<List<String>>{

@@ -99,9 +99,9 @@ class AddPasswordActivity {
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     trailingIcon = {
                         val image = if(passwordVisible){
-                            painterResource(id = R.drawable.passwordvisibleicon)
+                            painterResource(id = R.drawable.baseline_visibility_24)
                         } else {
-                            painterResource(id = R.drawable.passwordnotvisibleicon)
+                            painterResource(id = R.drawable.baseline_visibility_off_24)
                         }
                         val accessibilityDescription = if (passwordVisible) "Hide password" else "Show password"
 
