@@ -195,7 +195,7 @@ class NewUserActivity {
                             userName = ""
                             masterPassword = ""
                             confirmingPassword = ""
-                            databaseHelper.writeableDB.close()
+                            //databaseHelper.writeableDB.close()
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),

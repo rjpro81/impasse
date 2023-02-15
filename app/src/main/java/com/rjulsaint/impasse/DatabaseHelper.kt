@@ -86,7 +86,6 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
                 recordsList.add(record)
             }while(result.moveToNext())
         }
-
         result.close()
         return recordsList
     }
