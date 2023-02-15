@@ -33,7 +33,6 @@ class LoginActivity {
     @Composable
     private fun DisplayLoginFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
-        val readableDB = databaseHelper.readableDatabase
         val writeableDB = databaseHelper.writableDatabase
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -133,7 +132,7 @@ class LoginActivity {
                             var valid = false
                             try {
                                 valid = databaseHelper.masterPasswordLogin(
-                                    readableDB,
+                                    writeableDB,
                                     password,
                                     userName
                                 )
@@ -154,7 +153,7 @@ class LoginActivity {
 
                             userName = ""
                             password = ""
-                            readableDB.close()
+                            writeableDB.close()
                             writeableDB.close()
                         },
                         enabled = true,

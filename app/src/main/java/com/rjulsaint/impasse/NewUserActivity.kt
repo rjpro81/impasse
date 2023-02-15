@@ -31,7 +31,6 @@ class NewUserActivity {
     @Composable
     private fun DisplayUsernameFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
-        val readableDB = databaseHelper.readableDatabase
         val writeableDB = databaseHelper.writableDatabase
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -197,7 +196,6 @@ class NewUserActivity {
                             userName = ""
                             masterPassword = ""
                             confirmingPassword = ""
-                            readableDB.close()
                             writeableDB.close()
                         },
                         enabled = true,

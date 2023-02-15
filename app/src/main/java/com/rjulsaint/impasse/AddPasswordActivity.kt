@@ -31,7 +31,6 @@ class AddPasswordActivity {
     @Composable
     private fun DisplayAddPasswordFields(databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
-        val readableDB = databaseHelper.readableDatabase
         val writeableDB = databaseHelper.writableDatabase
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -168,7 +167,6 @@ class AddPasswordActivity {
                             webAddress = ""
                             description = ""
                             password = ""
-                            readableDB.close()
                             writeableDB.close()
                         },
                         enabled = true,

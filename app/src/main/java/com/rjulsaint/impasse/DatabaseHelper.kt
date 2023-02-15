@@ -14,8 +14,6 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         val createPasswordTable =
             ("CREATE TABLE IF NOT EXISTS ImpassePassword (id INTEGER PRIMARY KEY AUTOINCREMENT,webAddress TEXT NOT NULL,description TEXT,login TEXT,password TEXT NOT NULL,masterPassword TEXT NOT NULL REFERENCES ImpasseUser)")
         db?.execSQL(createPasswordTable)
-
-        db?.close()
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -23,26 +21,38 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         onCreate(db)
         db?.execSQL("DROP TABLE IF EXISTS ImpassePassword")
         onCreate(db)
-
-        db?.close()
     }
 
-    fun addNewUser(db: SQLiteDatabase?, userName: String,masterPassword: String) : Long? {
-        val result = db?.insert("ImpasseUser",null, contentValuesOf(Pair("masterPassword",masterPassword), Pair("userName", userName)))
-        db?.close()
-        return result
+    fun addNewUser(db: SQLiteDatabase?, userName: String, masterPassword: String): Long? {
+        return db?.insert(
+            "ImpasseUser",
+            null,
+            contentValuesOf(Pair("masterPassword", masterPassword), Pair("userName", userName))
+        )
     }
 
-    fun addNewPassword(db: SQLiteDatabase?, webAddress: String, description: String, password: String, masterPassword: String) : Long? {
-        val result = db?.insert("ImpassePassword",null, contentValuesOf(Pair("webAddress",webAddress), Pair("description", description), Pair("password", password), Pair("masterPassword", masterPassword)))
-        db?.close()
-        return result
+    fun addNewPassword(
+        db: SQLiteDatabase?,
+        webAddress: String,
+        description: String,
+        password: String,
+        masterPassword: String
+    ): Long? {
+        return db?.insert(
+            "ImpassePassword",
+            null,
+            contentValuesOf(
+                Pair("webAddress", webAddress),
+                Pair("description", description),
+                Pair("password", password),
+                Pair("masterPassword", masterPassword)
+            )
+        )
     }
 
     fun deleteAllPasswords(db: SQLiteDatabase?){
         db?.execSQL("Delete From ImpassePassword")
 
-        db?.close()
     }
 
     fun getAllUserStoredPasswords(db: SQLiteDatabase?, masterPassword: String) : MutableList<List<String>>{
@@ -92,7 +102,6 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         }catch(ex: CursorIndexOutOfBoundsException){
             false
         }
-
         result?.close()
         return valid
     }

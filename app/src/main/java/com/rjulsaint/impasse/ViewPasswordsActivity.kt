@@ -8,8 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,6 +16,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
@@ -26,7 +26,7 @@ class ViewPasswordsActivity {
     @Composable
     private fun DisplayViewPasswordFields(databaseHelper: DatabaseHelper){
         val focusManager = LocalFocusManager.current
-        val readableDB = databaseHelper.readableDatabase
+        val writeableDB = databaseHelper.writableDatabase
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -47,9 +47,10 @@ class ViewPasswordsActivity {
                 var passwordsList : MutableList<List<String>>? = null
                 try {
                     passwordsList = databaseHelper.getAllUserStoredPasswords(
-                        readableDB,
+                        writeableDB,
                         LoginActivity().sessionMasterPassword
                     )
+                    writeableDB.close()
                 } catch(ex : Exception){
                     Log.e(tag, "Unable to access database to retrieve a list of all passwords.", ex)
                 }
@@ -78,11 +79,31 @@ class ViewPasswordsActivity {
                                     .padding(start = 24.dp),
                                 text = password[1]
                             )
+                            var passwordVisible by remember { mutableStateOf(false) }
+
                             Text(
                                 modifier = Modifier
                                     .padding(start = 24.dp),
-                                text = password[2]
+                                text = if (passwordVisible) password[2] else "**********",
+                                softWrap = true,
+                                overflow = TextOverflow.Visible
                             )
+                            val image = if(passwordVisible){
+                                painterResource(id = R.drawable.passwordvisibleicon)
+                            } else {
+                                painterResource(id = R.drawable.passwordnotvisibleicon)
+                            }
+                            val description = if (passwordVisible) "Hide password" else "Show password"
+                            Row {
+                                // Toggle button to hide or display password
+                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                    Icon(image, description, Modifier.size(30.dp))
+                                }
+                                IconButton(onClick = {}){
+                                    //Icon()
+                                }
+                            }
+
                         }
                     }
                 }
