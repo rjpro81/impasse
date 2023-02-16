@@ -32,7 +32,7 @@ class AppBar {
             actions = {
                 IconButton(onClick = {
                     try {
-                        databaseHelper.onDeletePress(databaseHelper, builder, true,"Are you sure you want to delete all passwords?", "Unable to access database to delete passwords.")
+                        databaseHelper.onDeletePress(builder, /*true,*/"Are you sure you want to delete all passwords?", "Unable to access database to delete passwords.")
                     } catch(ex : Exception){
                         Log.e(tag, "Unable to display alert dialog.", ex)
                     }

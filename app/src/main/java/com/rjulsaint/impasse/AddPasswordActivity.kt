@@ -153,22 +153,19 @@ class AddPasswordActivity {
                         {
                             val masterPassword = LoginActivity().sessionMasterPassword
                             try {
-                                Thread {
-                                    errorOnSubmission = databaseHelper.addNewPassword(
-                                        databaseHelper.writeableDB,
-                                        webAddress,
-                                        description,
-                                        password,
-                                        masterPassword
-                                    )!! < 0
-                                }.start()
+                                errorOnSubmission = databaseHelper.addNewPassword(
+                                    databaseHelper.writeableDB,
+                                    webAddress,
+                                    description,
+                                    password,
+                                    masterPassword
+                                )!! < 0
                             } catch (ex : Exception){
                                 Log.e(tag, "Unable to access the database to add new password.", ex)
                             }
                             webAddress = ""
                             description = ""
                             password = ""
-                            //databaseHelper.writeableDB.close()
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),

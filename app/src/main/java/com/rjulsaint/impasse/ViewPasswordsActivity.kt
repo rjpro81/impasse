@@ -58,7 +58,6 @@ class ViewPasswordsActivity {
                         databaseHelper.writeableDB,
                         LoginActivity().sessionMasterPassword
                     )
-                    databaseHelper.writeableDB.close()
                 } catch(ex : Exception){
                     Log.e(tag, "Unable to access database to retrieve a list of all passwords.", ex)
                 }
@@ -107,14 +106,21 @@ class ViewPasswordsActivity {
                                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                     Icon(image, description, Modifier.size(30.dp))
                                 }
+                                Spacer(modifier = Modifier.padding(start = 25.dp, end = 25.dp))
                                 IconButton(onClick = { clipboardManager.setText(
-                                    AnnotatedString(password[2])); Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show() }){
+                                    AnnotatedString(password[2])); Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+                                }
+                                ){
                                     Icon(painterResource(id = R.drawable.outline_content_copy_24), "Copy Contents", Modifier.size(30.dp))
                                 }
+                                Spacer(modifier = Modifier.padding(start = 25.dp, end = 25.dp))
                                 IconButton(onClick = {
-                                    databaseHelper.onDeletePress(databaseHelper, alertDialogBuilder, false,"Are you sure you want to delete password?", "Unable to access database to delete password.", password[0], password[1])
-                                    clipboardManager.setText(
-                                        AnnotatedString(password[2])); Toast.makeText(context, "Password deleted", Toast.LENGTH_SHORT).show()
+                                    val numOfRecordsDeleted = databaseHelper.onDeletePress(alertDialogBuilder, /*false,*/"Are you sure you want to delete password?", "Unable to access database to delete password.", password[0], password[1])
+                                    println(numOfRecordsDeleted)
+                                    println("HELLO WORLD!!!!!!!!!!")
+                                    if(numOfRecordsDeleted > 0){
+                                        Toast.makeText(context, "Password deleted", Toast.LENGTH_SHORT).show()
+                                    }
                                 }) {
                                     Icon(painterResource(id = R.drawable.baseline_delete_24), "Delete Password", Modifier.size(30.dp))
                                 }
@@ -163,7 +169,6 @@ class ViewPasswordsActivity {
                                 painter = painterResource(id = R.drawable.ic_launcher_background),
                                 contentDescription = "",
                             )
-
                             Image(
                                 modifier = Modifier
                                     .scale(1.4f),

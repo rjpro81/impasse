@@ -10,13 +10,13 @@ import androidx.core.content.contentValuesOf
 
 class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseDatabase", null, 1) {
     private val tag : String = "DatabaseHelper"
-    val writeableDB = this.writableDatabase
+    val writeableDB: SQLiteDatabase = this.writableDatabase
     override fun onCreate(db: SQLiteDatabase?) {
         val createUserTable =
             ("CREATE TABLE IF NOT EXISTS ImpasseUser (id INTEGER PRIMARY KEY AUTOINCREMENT, userName TEXT NOT NULL, masterPassword TEXT NOT NULL)")
         db?.execSQL(createUserTable)
         val createPasswordTable =
-            ("CREATE TABLE IF NOT EXISTS ImpassePassword (id INTEGER PRIMARY KEY AUTOINCREMENT,webAddress TEXT NOT NULL,description TEXT,login TEXT,password TEXT NOT NULL,masterPassword TEXT NOT NULL REFERENCES ImpasseUser)")
+            ("CREATE TABLE IF NOT EXISTS ImpassePassword (id INTEGER PRIMARY KEY AUTOINCREMENT,webAddress TEXT NOT NULL,description TEXT NOT NULL,password TEXT NOT NULL,masterPassword TEXT NOT NULL REFERENCES ImpasseUser)")
         db?.execSQL(createPasswordTable)
     }
 
@@ -53,17 +53,17 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
             )
         )
     }
-
-    private fun deleteAllPasswords(db: SQLiteDatabase?){
-        db?.execSQL("Delete From ImpassePassword")
+/*
+    private fun deleteAllPasswords(db: SQLiteDatabase) : Int{
+        return db.delete("ImpassePassword",null, null)
+    }
+*/
+    private fun deletePassword(db : SQLiteDatabase, webAddress: String, description: String): Int{
+        return db.delete("ImpassePassword", "WebAddress = ? AND description = ?", arrayOf(webAddress, description))
     }
 
-    private fun deletePassword(db : SQLiteDatabase?, webAddress: String, description: String){
-        db?.execSQL("Delete From ImpassePassword WHERE webAddress = '$webAddress' AND description = '$description'")
-    }
-
-    fun getAllUserStoredPasswords(db: SQLiteDatabase?, masterPassword: String) : MutableList<List<String>>{
-        val result = db?.query(
+    fun getAllUserStoredPasswords(db: SQLiteDatabase, masterPassword: String) : MutableList<List<String>>{
+        val result = db.query(
             "ImpassePassword",
             arrayOf("webAddress", "description", "password"),
             "masterPassword = ?",
@@ -76,7 +76,7 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
 
         val recordsList : MutableList<List<String>> = mutableListOf()
 
-        if(result!!.moveToFirst()){
+        if(result.moveToFirst()){
             do{
                 val record: MutableList<String> = mutableListOf(
                     result.getString(0),
@@ -90,8 +90,8 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         return recordsList
     }
 
-    fun masterPasswordLogin(db: SQLiteDatabase?, masterPassword: String, userName: String): Boolean {
-        val result = db?.query(
+    fun masterPasswordLogin(db: SQLiteDatabase, masterPassword: String, userName: String): Boolean {
+        val result = db.query(
             "ImpasseUser",
             arrayOf("masterPassword"),
             "masterPassword = ? AND userName = ?",
@@ -102,29 +102,31 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
             null
         )
 
-        result?.moveToFirst()
+        result.moveToFirst()
         val valid = try {
-            result?.getString(0) == masterPassword
+            result.getString(0) == masterPassword
         }catch(ex: CursorIndexOutOfBoundsException){
             false
         }
-        result?.close()
+        result.close()
         return valid
     }
 
-    fun onDeletePress(databaseHelper: DatabaseHelper, builder : AlertDialog.Builder, tableClearDown : Boolean = false,setMessage : String, errorMessage : String, webAddress: String? = null, description: String? = null){
+    fun onDeletePress(builder : AlertDialog.Builder, /*tableClearDown : Boolean = false,*/setMessage : String, errorMessage : String, webAddress : String = "", description: String = "") : Int{
         builder.setMessage(setMessage)
         builder.setTitle("Alert!!")
         builder.setCancelable(false)
+        var numOfRecordsDeleted = -1
         try {
             builder.setPositiveButton("Yes") {
                 // When the user click yes button then app will close
                     _, _ ->
-                if(tableClearDown) {
-                    databaseHelper.deleteAllPasswords(databaseHelper.writableDatabase)
+                 /*numOfRecordsDeleted = if(tableClearDown) {
+                    this.deleteAllPasswords(writeableDB)
                 } else {
-                    databaseHelper.deletePassword(databaseHelper.writableDatabase, webAddress!!, description!!)
-                }
+                    this.deletePassword(writeableDB, webAddress, description)
+                }*/
+                numOfRecordsDeleted = this.deletePassword(writeableDB, webAddress, description)
             }
         } catch(ex : java.lang.Exception){
             Log.e(tag, errorMessage, ex)
@@ -137,5 +139,6 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
 
         val alertDialog = builder.create()
         alertDialog.show()
+        return numOfRecordsDeleted
     }
 }

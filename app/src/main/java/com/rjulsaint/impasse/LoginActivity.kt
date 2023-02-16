@@ -156,8 +156,6 @@ class LoginActivity {
 
                             userName = ""
                             password = ""
-                            //databaseHelper.writeableDB.close()
-
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
