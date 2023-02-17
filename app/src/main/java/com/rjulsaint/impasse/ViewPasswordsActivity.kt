@@ -76,6 +76,7 @@ class ViewPasswordsActivity {
                 try {
                     passwordsList = databaseHelper.getAllUserStoredPasswords(
                         databaseHelper.writeableDB,
+                        LoginActivity().sessionUser,
                         LoginActivity().sessionMasterPassword
                     )
                 } catch(ex : Exception){

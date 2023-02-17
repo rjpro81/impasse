@@ -13,7 +13,7 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
             ("CREATE TABLE IF NOT EXISTS ImpasseUser (id INTEGER PRIMARY KEY AUTOINCREMENT, userName TEXT NOT NULL, masterPassword TEXT NOT NULL)")
         db.execSQL(createUserTable)
         val createPasswordTable =
-            ("CREATE TABLE IF NOT EXISTS ImpassePassword (id INTEGER PRIMARY KEY AUTOINCREMENT,webAddress TEXT NOT NULL,description TEXT NOT NULL,password TEXT NOT NULL,masterPassword TEXT NOT NULL REFERENCES ImpasseUser)")
+            ("CREATE TABLE IF NOT EXISTS ImpassePassword (id INTEGER PRIMARY KEY AUTOINCREMENT,webAddress TEXT NOT NULL,description TEXT NOT NULL,password TEXT NOT NULL,masterPassword TEXT NOT NULL REFERENCES ImpasseUser, userName TEXT NOT NULL REFERENCES ImpasseUser)")
         db.execSQL(createPasswordTable)
     }
 
@@ -66,13 +66,14 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
 
     fun getAllUserStoredPasswords(
         db: SQLiteDatabase,
+        userName: String,
         masterPassword: String
     ): MutableList<List<String>> {
         val result = db.query(
             "ImpassePassword",
             arrayOf("webAddress", "description", "password"),
-            "masterPassword = ?",
-            arrayOf(masterPassword),
+            "masterPassword = ? AND userName = ?",
+            arrayOf(masterPassword, userName),
             null,
             null,
             null,
@@ -116,7 +117,7 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         result.close()
         return valid
     }
-/*
+
     fun getAllUsers(db: SQLiteDatabase, userName: String, masterPassword: String): MutableList<List<String>>{
         val result = db.query(
             "ImpasseUser",
@@ -143,7 +144,7 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         result.close()
         return recordsList
     }
-
+/*
     fun updateUser(db: SQLiteDatabase, newUserName: String, newMasterPassword: String, oldUserName: String, oldMasterPassword: String):Int{
         return db.update(
             "ImpasseUser",

@@ -50,6 +50,7 @@ class NewUserActivity {
                 var masterPassword by remember { mutableStateOf("") }
                 var confirmingPassword by remember { mutableStateOf("") }
                 var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
+                var isExistingUser by rememberSaveable { mutableStateOf(false) }
                 var passwordVisible by remember { mutableStateOf(false) }
                 var confirmPasswordVisible by remember { mutableStateOf(false) }
                 var matchingPassword by remember { mutableStateOf(true) }
@@ -153,6 +154,16 @@ class NewUserActivity {
                         modifier = Modifier.padding(start = 16.dp)
                     )
                 }
+                //This code will be used to validate new user creation
+                if(isExistingUser){
+                    Text(
+                        text = "This user already exists",
+                        color = MaterialTheme.colors.error,
+                        style = MaterialTheme.typography.caption,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
+
                 Spacer(
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 8.dp)
@@ -179,7 +190,12 @@ class NewUserActivity {
                         onClick =
                         {
                             var result : Long? = null
+                            var index : Int = -1
                             try {
+                                val users : MutableList<List<String>> = databaseHelper.getAllUsers(databaseHelper.writeableDB, userName, masterPassword)
+                                users.forEach{ user ->
+                                    index = user.binarySearch(userName)
+                                }
                                 result = databaseHelper.addNewUser(databaseHelper.writeableDB, userName, masterPassword)
                             } catch (ex : Exception){
                                 Log.e(tag, "Unable to access database to add new user.", ex)
@@ -191,6 +207,8 @@ class NewUserActivity {
                                 hasUserName = false
                             } else if(masterPassword != confirmingPassword) {
                                 matchingPassword = false
+                            } else if (index >= 0){
+                                isExistingUser = true
                             } else if (result!! >= 0 && masterPassword != "") {
                                 try {
                                     Toast.makeText(context, "New user created", Toast.LENGTH_SHORT)

@@ -53,6 +53,7 @@ class AddPasswordActivity {
                 var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
                 var passwordVisible by remember { mutableStateOf(false) }
                 var errorOnSubmission by remember { mutableStateOf(false) }
+                var isExistingPassword by rememberSaveable { mutableStateOf(false) }
 
                 Text("Add Password", color = Color.Gray)
                 Spacer(
@@ -132,6 +133,15 @@ class AddPasswordActivity {
                         modifier = Modifier.padding(start = 16.dp)
                     )
                 }
+                //This code will validate if new password is being added to database
+                if(isExistingPassword){
+                    Text(
+                        text = "A password already exists for this record",
+                        color = MaterialTheme.colors.error,
+                        style = MaterialTheme.typography.caption,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
                 Spacer(
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 8.dp)
@@ -156,7 +166,19 @@ class AddPasswordActivity {
                         onClick =
                         {
                             val masterPassword = LoginActivity().sessionMasterPassword
+                            val userName = LoginActivity().sessionUser
+                            var index: Int = -1
+
                             try {
+                                val passwords : MutableList<List<String>> = databaseHelper.getAllUserStoredPasswords(databaseHelper.writeableDB, userName, masterPassword)
+                                passwords.forEach{ password ->
+                                    index = password.binarySearch(webAddress)
+                                }
+
+                                if(index >= 0){
+                                    isExistingPassword = true
+                                }
+
                                 errorOnSubmission = databaseHelper.addNewPassword(
                                     databaseHelper.writeableDB,
                                     webAddress,
