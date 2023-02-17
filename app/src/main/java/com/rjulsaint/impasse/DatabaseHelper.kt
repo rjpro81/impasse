@@ -116,4 +116,41 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         result.close()
         return valid
     }
+/*
+    fun getAllUsers(db: SQLiteDatabase, userName: String, masterPassword: String): MutableList<List<String>>{
+        val result = db.query(
+            "ImpasseUser",
+            arrayOf("userName", "masterPassword"),
+            "userName = ? AND masterPassword = ?",
+            arrayOf(userName, masterPassword),
+            null,
+            null,
+            null,
+            null
+        )
+
+        val recordsList: MutableList<List<String>> = mutableListOf()
+
+        if (result.moveToFirst()) {
+            do {
+                val record: MutableList<String> = mutableListOf(
+                    result.getString(0),
+                    result.getString(1),
+                )
+                recordsList.add(record)
+            } while (result.moveToNext())
+        }
+        result.close()
+        return recordsList
+    }
+
+    fun updateUser(db: SQLiteDatabase, newUserName: String, newMasterPassword: String, oldUserName: String, oldMasterPassword: String):Int{
+        return db.update(
+            "ImpasseUser",
+            contentValuesOf(Pair("userName", newUserName), Pair("masterPassword", newMasterPassword)),
+            "userName = ? AND masterPassword = ?",
+            arrayOf(oldUserName, oldMasterPassword)
+        )
+    }
+    */
 }

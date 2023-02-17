@@ -115,8 +115,8 @@ class LoginActivity {
                         {
                             try {
                                 navHostController.navigate(ScreenNavigation.NewUser.route)
-                            } catch (ex : Exception){
-                                Log.e(tag, "Unable to navigate to NewUser screen.", ex)
+                            } catch (ex : IllegalArgumentException){
+                                Log.e(tag, "Unable to navigate due to invalid route given.", ex)
                             }
                         },
                         enabled = true,

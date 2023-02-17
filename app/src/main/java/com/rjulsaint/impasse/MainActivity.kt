@@ -19,7 +19,6 @@ class MainActivity : ComponentActivity() {
             ImPasseTheme {
                 val databaseHelper = DatabaseHelper(this)
                 try {
-                    //databaseHelper.onUpgrade(databaseHelper.writableDatabase, 1, 1)
                     databaseHelper.onCreate(databaseHelper.writableDatabase)
                 } catch(ex : Exception){
                     Log.e(tag, "Unable to access database to perform onCreate function.", ex)

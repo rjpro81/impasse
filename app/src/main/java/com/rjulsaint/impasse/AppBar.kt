@@ -1,5 +1,6 @@
 package com.rjulsaint.impasse
 
+import android.content.res.Resources.NotFoundException
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.sql.SQLException
 
 class AppBar {
     private val tag : String = "AppBar"
@@ -41,8 +43,12 @@ class AppBar {
                             Toast.makeText(context, "Passwords deleted", Toast.LENGTH_SHORT).show()
                             navHostController.navigate(ScreenNavigation.ViewPasswords.route)
                         }
-                    } catch(ex : Exception){
+                    } catch(ex : SQLException){
                         Log.e(tag, "Unable to display alert dialog.", ex)
+                    } catch(ex : NotFoundException){
+                        Log.e(tag, "Unable to locate resource for displaying toast.", ex)
+                    } catch(ex : IllegalArgumentException){
+                        Log.e(tag, "Unable to navigate due to invalid route given.", ex)
                     }
                 },enabled = (navHostController.currentBackStackEntry?.destination?.route != "login_screen") && (navHostController.currentBackStackEntry?.destination?.route != "newUser_screen")){
                     Icon(Icons.Rounded.Delete, "Delete Icon")
@@ -50,7 +56,11 @@ class AppBar {
 
                 IconButton(
                     onClick = {
-                    navHostController.navigate(ScreenNavigation.Settings.route)
+                        try {
+                            navHostController.navigate(ScreenNavigation.Settings.route)
+                        } catch (ex : IllegalArgumentException){
+                            Log.e(tag, "Unable to navigate due to invalid route given.", ex)
+                        }
                     }
                 ){
                     Icon(Icons.Rounded.Settings, "Settings Icon")

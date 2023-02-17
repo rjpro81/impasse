@@ -1,5 +1,6 @@
 package com.rjulsaint.impasse
 
+import android.content.res.Resources.NotFoundException
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
+import java.sql.SQLException
 
 class AddPasswordActivity {
     private val tag : String = "AddPasswordActivity"
@@ -165,8 +167,10 @@ class AddPasswordActivity {
                                 if(!errorOnSubmission){
                                     Toast.makeText(context, "Password added", Toast.LENGTH_SHORT).show()
                                 }
-                            } catch (ex : Exception){
+                            } catch (ex : SQLException){
                                 Log.e(tag, "Unable to access the database to add new password.", ex)
+                            } catch (ex : NotFoundException){
+                                Log.e(tag, "Unable to locate resource for displaying toast.", ex)
                             }
                             webAddress = ""
                             description = ""

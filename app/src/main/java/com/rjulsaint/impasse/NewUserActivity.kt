@@ -1,5 +1,6 @@
 package com.rjulsaint.impasse
 
+import android.content.res.Resources.NotFoundException
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -191,8 +192,15 @@ class NewUserActivity {
                             } else if(masterPassword != confirmingPassword) {
                                 matchingPassword = false
                             } else if (result!! >= 0 && masterPassword != "") {
-                                Toast.makeText(context, "New user created", Toast.LENGTH_SHORT).show()
-                                navHostController.navigate(ScreenNavigation.Login.route)
+                                try {
+                                    Toast.makeText(context, "New user created", Toast.LENGTH_SHORT)
+                                        .show()
+                                    navHostController.navigate(ScreenNavigation.Login.route)
+                                }catch(ex : NotFoundException){
+                                    Log.e(tag, "Unable to locate resource for displaying toast.", ex)
+                                } catch(ex : IllegalArgumentException){
+                                    Log.e(tag, "Unable to navigate due to invalid route given.", ex)
+                                }
                             }
 
                             userName = ""

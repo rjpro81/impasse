@@ -12,8 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -49,8 +47,8 @@ class Drawer {
                             }
                             try {
                                 navHostController.navigate(item.route)
-                            } catch (ex: Exception) {
-                                Log.e(tag, "Unable to navigate to selected screen.", ex)
+                            } catch (ex: IllegalArgumentException) {
+                                Log.e(tag, "Unable to navigate due to invalid route given.", ex)
                             }
                         },
                     backgroundColor = if (selected) Purple500 else Color.White,
@@ -76,16 +74,6 @@ class Drawer {
                     }
                 }
             }
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = "Developed by Ralph Julsaint",
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(12.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
         }
     }
 }
