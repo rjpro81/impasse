@@ -8,19 +8,19 @@ import androidx.core.content.contentValuesOf
 
 class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseDatabase", null, 1) {
     val writeableDB: SQLiteDatabase = this.writableDatabase
-    override fun onCreate(db: SQLiteDatabase?) {
+    override fun onCreate(db: SQLiteDatabase) {
         val createUserTable =
             ("CREATE TABLE IF NOT EXISTS ImpasseUser (id INTEGER PRIMARY KEY AUTOINCREMENT, userName TEXT NOT NULL, masterPassword TEXT NOT NULL)")
-        db?.execSQL(createUserTable)
+        db.execSQL(createUserTable)
         val createPasswordTable =
             ("CREATE TABLE IF NOT EXISTS ImpassePassword (id INTEGER PRIMARY KEY AUTOINCREMENT,webAddress TEXT NOT NULL,description TEXT NOT NULL,password TEXT NOT NULL,masterPassword TEXT NOT NULL REFERENCES ImpasseUser)")
-        db?.execSQL(createPasswordTable)
+        db.execSQL(createPasswordTable)
     }
 
-    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db?.execSQL("DROP TABLE IF EXISTS ImpasseUser")
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        db.execSQL("DROP TABLE IF EXISTS ImpasseUser")
         onCreate(db)
-        db?.execSQL("DROP TABLE IF EXISTS ImpassePassword")
+        db.execSQL("DROP TABLE IF EXISTS ImpassePassword")
         onCreate(db)
     }
 

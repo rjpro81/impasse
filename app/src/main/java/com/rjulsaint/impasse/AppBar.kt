@@ -48,7 +48,11 @@ class AppBar {
                     Icon(Icons.Rounded.Delete, "Delete Icon")
                 }
 
-                IconButton(onClick = {}){
+                IconButton(
+                    onClick = {
+                    navHostController.navigate(ScreenNavigation.Settings.route)
+                    }
+                ){
                     Icon(Icons.Rounded.Settings, "Settings Icon")
                 }
             },

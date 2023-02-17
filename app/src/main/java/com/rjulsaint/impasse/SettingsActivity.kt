@@ -1,59 +1,170 @@
 package com.rjulsaint.impasse
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-//import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
 class SettingsActivity {
-    //private val tag : String = "SettingsActivity"
+    private val tag : String = "SettingsActivity"
     @Composable
-    private fun DisplaySettingsFields(/*navHostController: NavHostController, databaseHelper: DatabaseHelper*/){
-        //val context = LocalContext.current
-
+    private fun DisplaySettingsFields(navHostController: NavHostController, databaseHelper: DatabaseHelper){
+        val context = LocalContext.current
         val focusManager = LocalFocusManager.current
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
             modifier = Modifier
-                .fillMaxSize()
                 .clickable { focusManager.clearFocus() }
+                .fillMaxSize(),
         ) {
-            /*Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+            val openDialog = remember { mutableStateOf(false) }
+            val dismissAlertDialog = remember { mutableStateOf(true) }
+            if(openDialog.value) {
+                AlertDialog(
+                    onDismissRequest = { dismissAlertDialog.value },
+                    title = {
+                        Text(text = "Alert!!")
+                    },
+                    text = {
+                        Text(text = "Are you sure you want to reset database?\nThis will delete all saved application data")
+                    },
+                    buttons = {
+                        Row(
+                            modifier = Modifier
+                                .padding(all = 8.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Button(
+                                onClick = {
+                                    try {
+                                        databaseHelper.onUpgrade(databaseHelper.writeableDB, 1, 2)
+                                        Toast.makeText(
+                                            context,
+                                            "New database created",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                            .show()
+                                        navHostController.navigate(ScreenNavigation.Login.route)
+                                    } catch (ex: Exception) {
+                                        Log.e(
+                                            tag,
+                                            "Unable to access database to reset or update database.",
+                                            ex
+                                        )
+                                    }
+                                }
+                            ) {
+                                Text("Yes")
+                            }
+                            Spacer(modifier = Modifier.padding(start = 5.dp, end = 5.dp))
+                            Button(
+                                onClick = {
+                                    openDialog.value = false
+                                }
+                            ) {
+                                Text("No")
+                            }
+                        }
+                    },
+                    properties = DialogProperties(
+                        dismissOnBackPress = true,
+                        dismissOnClickOutside = true,
+                    )
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-
-            }*/
-            Button(
-                onClick =
-                {
-
-                },
-                enabled = true,
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
-                elevation = ButtonDefaults.elevation(pressedElevation = 5.dp),
-                modifier = Modifier
-                    .padding(end = 2.dp)
-                    .size(width = 200.dp, height = 36.dp)
-            ) {
-                Text(text = "Reset Database", color = Color.White)
+                Text(text = "Application Settings", color = Color.Black)
             }
+            Spacer(
+                modifier = Modifier
+                    .padding(top = 8.dp, bottom = 8.dp)
+            )
+            Row {
+                Icon(painter = painterResource(id = R.drawable.baseline_dataset_24), contentDescription = "Reset Database", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
+
+                ClickableText(
+                    onClick = {
+                        openDialog.value = true
+                    },
+                    text = AnnotatedString(text = "Reset Database"),
+                    style = TextStyle(
+                        color = Color.DarkGray,
+                        fontSize = 25.sp
+                    ),
+                )
+            }
+
+            Row{
+                Icon(painter = painterResource(id = R.drawable.baseline_edit_24), contentDescription = "Edit Users", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
+
+                ClickableText(
+                    onClick = {
+                        //openDialog.value = true
+                    },
+                    text = AnnotatedString(text = "Edit Users"),
+                    style = TextStyle(
+                        color = Color.DarkGray,
+                        fontSize = 25.sp
+                    ),
+                )
+            }
+
+            Row{
+                Icon(painter = painterResource(id = R.drawable.baseline_palette_24), contentDescription = "Themes", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
+
+                ClickableText(
+                    onClick = {
+                        //openDialog.value = true
+                    },
+                    text = AnnotatedString(text = "Themes"),
+                    style = TextStyle(
+                        color = Color.DarkGray,
+                        fontSize = 25.sp
+                    ),
+                )
+            }
+
+            Row{
+                Icon(painter = painterResource(id = R.drawable.baseline_logout_24), contentDescription = "Logout", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
+
+                ClickableText(
+                    onClick = {
+                        //openDialog.value = true
+                    },
+                    text = AnnotatedString(text = "Logout"),
+                    style = TextStyle(
+                        color = Color.DarkGray,
+                        fontSize = 25.sp
+                    ),
+                )
+            }
+
         }
     }
 
@@ -106,7 +217,7 @@ class SettingsActivity {
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {
-                    DisplaySettingsFields(/*navHostController, databaseHelper*/)
+                    DisplaySettingsFields(navHostController, databaseHelper)
                 }
             }
         }

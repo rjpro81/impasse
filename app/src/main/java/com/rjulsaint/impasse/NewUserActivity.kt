@@ -1,6 +1,7 @@
 package com.rjulsaint.impasse
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -30,6 +32,7 @@ class NewUserActivity {
     @Composable
     private fun DisplayUsernameFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
+        val context = LocalContext.current
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -188,6 +191,7 @@ class NewUserActivity {
                             } else if(masterPassword != confirmingPassword) {
                                 matchingPassword = false
                             } else if (result!! >= 0 && masterPassword != "") {
+                                Toast.makeText(context, "New user created", Toast.LENGTH_SHORT).show()
                                 navHostController.navigate(ScreenNavigation.Login.route)
                             }
 
