@@ -2,7 +2,6 @@ package com.rjulsaint.impasse
 
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog.Builder
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
@@ -29,11 +29,12 @@ import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 class ViewPasswordsActivity {
     private val tag : String = "ViewPasswordActivity"
     @Composable
-    private fun DisplayViewPasswordFields(databaseHelper: DatabaseHelper){
-        val alertDialogBuilder = Builder(LocalContext.current)
+    private fun DisplayViewPasswordFields(databaseHelper: DatabaseHelper, navHostController: NavHostController){
         val context = LocalContext.current
         val clipboardManager = LocalClipboardManager.current
         val focusManager = LocalFocusManager.current
+        var webAddress: String? = null
+        var description: String? = null
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -87,6 +88,8 @@ class ViewPasswordsActivity {
                                 text = password[1]
                             )
                             var passwordVisible by remember { mutableStateOf(false) }
+                            val openDialog = remember { mutableStateOf(false) }
+                            val dismissAlertDialog = remember { mutableStateOf(true) }
 
                             Text(
                                 modifier = Modifier
@@ -100,11 +103,12 @@ class ViewPasswordsActivity {
                             } else {
                                 painterResource(id = R.drawable.baseline_visibility_off_24)
                             }
-                            val description = if (passwordVisible) "Hide password" else "Show password"
+                            val passwordContentDescription = if (passwordVisible) "Hide password" else "Show password"
+
                             Row {
                                 // Toggle button to hide or display password
                                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                    Icon(image, description, Modifier.size(30.dp))
+                                    Icon(image, passwordContentDescription, Modifier.size(30.dp))
                                 }
                                 Spacer(modifier = Modifier.padding(start = 25.dp, end = 25.dp))
                                 IconButton(onClick = { clipboardManager.setText(
@@ -115,15 +119,69 @@ class ViewPasswordsActivity {
                                 }
                                 Spacer(modifier = Modifier.padding(start = 25.dp, end = 25.dp))
                                 IconButton(onClick = {
-                                    val numOfRecordsDeleted = databaseHelper.onDeletePress(alertDialogBuilder, /*false,*/"Are you sure you want to delete password?", "Unable to access database to delete password.", password[0], password[1])
-                                    println(numOfRecordsDeleted)
-                                    println("HELLO WORLD!!!!!!!!!!")
-                                    if(numOfRecordsDeleted > 0){
-                                        Toast.makeText(context, "Password deleted", Toast.LENGTH_SHORT).show()
-                                    }
+                                    webAddress = password[0]
+                                    description = password[1]
+                                    openDialog.value = true
                                 }) {
                                     Icon(painterResource(id = R.drawable.baseline_delete_24), "Delete Password", Modifier.size(30.dp))
                                 }
+                                if(openDialog.value) {
+                                    AlertDialog(
+                                        onDismissRequest = { dismissAlertDialog.value },
+                                        title = {
+                                            Text(text = "Alert!!")
+                                        },
+                                        text = {
+                                            Text(text = "Are you sure you want to delete password?")
+                                        },
+                                        buttons = {
+                                            Row(
+                                                modifier = Modifier
+                                                    .padding(all = 8.dp),
+                                                horizontalArrangement = Arrangement.Center
+                                            ) {
+                                                Button(
+                                                    onClick = {
+                                                        openDialog.value = false
+
+                                                        var numOfRecordsDeleted: Int = -1
+
+                                                        try {
+                                                            numOfRecordsDeleted =
+                                                                databaseHelper.deletePassword(
+                                                                    databaseHelper.writeableDB,
+                                                                    webAddress!!,
+                                                                    description!!
+                                                                )
+                                                        }catch(ex: Exception){
+                                                            Log.e(tag, "Unable to access database to delete password", ex)
+                                                        }
+
+                                                        if(numOfRecordsDeleted > 0){
+                                                            Toast.makeText(context, "Password deleted", Toast.LENGTH_SHORT).show()
+                                                            navHostController.navigate(ScreenNavigation.ViewPasswords.route)
+                                                        }
+                                                    }
+                                                ) {
+                                                    Text("Yes")
+                                                }
+                                                Spacer(modifier = Modifier.padding(start = 5.dp, end = 5.dp))
+                                                Button(
+                                                    onClick = {
+                                                        openDialog.value = false
+                                                    }
+                                                ) {
+                                                    Text("No")
+                                                }
+                                            }
+                                        },
+                                        properties = DialogProperties(
+                                            dismissOnBackPress = true,
+                                            dismissOnClickOutside = true,
+                                        )
+                                    )
+                                }
+
                             }
 
                         }
@@ -135,7 +193,7 @@ class ViewPasswordsActivity {
     }
 
     @Composable
-    fun ViewPasswordsScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper, builder : Builder) {
+    fun ViewPasswordsScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -144,7 +202,6 @@ class ViewPasswordsActivity {
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
                     databaseHelper = databaseHelper,
-                    builder = builder,
                     navHostController = navHostController
                 ) },
                 scaffoldState = scaffoldState,
@@ -182,7 +239,7 @@ class ViewPasswordsActivity {
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {
-                    DisplayViewPasswordFields(databaseHelper)
+                    DisplayViewPasswordFields(databaseHelper, navHostController)
                 }
             }
         }

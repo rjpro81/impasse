@@ -1,7 +1,6 @@
 package com.rjulsaint.impasse
 
 import android.util.Log
-import androidx.appcompat.app.AlertDialog.Builder
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -195,7 +194,6 @@ class NewUserActivity {
                             userName = ""
                             masterPassword = ""
                             confirmingPassword = ""
-                            //databaseHelper.writeableDB.close()
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
@@ -211,7 +209,7 @@ class NewUserActivity {
 
     //@Preview(showBackground = true)
     @Composable
-    fun DisplayUsernameScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper, builder : Builder) {
+    fun DisplayUsernameScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -221,7 +219,6 @@ class NewUserActivity {
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
                     databaseHelper = databaseHelper,
-                    builder = builder,
                     navHostController = navHostController
                 ) },
                 scaffoldState = scaffoldState,

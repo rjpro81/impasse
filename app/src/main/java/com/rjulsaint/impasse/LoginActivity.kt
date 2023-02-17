@@ -2,7 +2,6 @@ package com.rjulsaint.impasse
 
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog.Builder
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -170,7 +169,7 @@ class LoginActivity {
     }
 
     @Composable
-    fun DisplayLoginScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper, builder : Builder) {
+    fun DisplayLoginScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -179,7 +178,6 @@ class LoginActivity {
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
                     databaseHelper = databaseHelper,
-                    builder = builder,
                     navHostController = navHostController
                 ) },
                 scaffoldState = scaffoldState,

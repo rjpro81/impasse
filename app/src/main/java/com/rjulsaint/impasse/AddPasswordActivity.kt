@@ -1,7 +1,7 @@
 package com.rjulsaint.impasse
 
 import android.util.Log
-import androidx.appcompat.app.AlertDialog.Builder
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -31,6 +32,7 @@ class AddPasswordActivity {
     @Composable
     private fun DisplayAddPasswordFields(databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
+        val context = LocalContext.current
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -160,6 +162,9 @@ class AddPasswordActivity {
                                     password,
                                     masterPassword
                                 )!! < 0
+                                if(!errorOnSubmission){
+                                    Toast.makeText(context, "Password added", Toast.LENGTH_SHORT).show()
+                                }
                             } catch (ex : Exception){
                                 Log.e(tag, "Unable to access the database to add new password.", ex)
                             }
@@ -199,7 +204,7 @@ class AddPasswordActivity {
     }
 
     @Composable
-    fun DisplayAddPasswordScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper, builder : Builder) {
+    fun DisplayAddPasswordScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -208,7 +213,6 @@ class AddPasswordActivity {
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
                     databaseHelper = databaseHelper,
-                    builder = builder,
                     navHostController = navHostController
                 ) },
                 scaffoldState = scaffoldState,
