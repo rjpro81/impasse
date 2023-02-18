@@ -7,7 +7,11 @@ import androidx.navigation.compose.composable
 
 class NavigationGraph {
     @Composable
-    fun NavGraph(navHostController: NavHostController, databaseHelper: DatabaseHelper, sessionManager: SessionManager){
+    fun NavGraph(
+        navHostController: NavHostController,
+        databaseHelper: DatabaseHelper,
+        sessionManager: SessionManager
+    ){
         NavHost(navController = navHostController, startDestination = ScreenNavigation.Login.route){
             composable(route = ScreenNavigation.Login.route){
                 LoginActivity().DisplayLoginScreen(navHostController, databaseHelper, sessionManager)
@@ -18,15 +22,13 @@ class NavigationGraph {
             composable(route = ScreenNavigation.AddPassword.route){
                 AddPasswordActivity().DisplayAddPasswordScreen(
                     navHostController = navHostController,
-                    databaseHelper = databaseHelper,
-                    sessionManager = sessionManager
+                    databaseHelper = databaseHelper,sessionManager,
                 )
             }
             composable(route = ScreenNavigation.ViewPasswords.route){
                 ViewPasswordsActivity().ViewPasswordsScreen(
                     navHostController = navHostController,
-                    databaseHelper = databaseHelper,
-                    sessionManager = sessionManager
+                    databaseHelper = databaseHelper,sessionManager,
                 )
             }
             composable(ScreenNavigation.Settings.route){

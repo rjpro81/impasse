@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -53,7 +54,11 @@ class AppBar {
                         scaffoldState.drawerState.open()
                     }
                 }) {
-                    Icon(Icons.Rounded.Menu, "Drawer Icon")
+                    val backStackEntry = navHostController.currentBackStackEntryAsState()
+
+                    if(backStackEntry.value?.destination?.route != ScreenNavigation.Login.route) {
+                        Icon(Icons.Rounded.Menu, "Hamburger Menu")
+                    }
                 }
             },
         )

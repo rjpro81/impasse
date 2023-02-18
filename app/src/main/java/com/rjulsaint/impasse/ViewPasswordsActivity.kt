@@ -30,9 +30,13 @@ import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
 class ViewPasswordsActivity {
     private val tag : String = "ViewPasswordActivity"
-    @OptIn(ExperimentalMaterialApi::class)
+    //@OptIn(ExperimentalMaterialApi::class)
     @Composable
-    private fun DisplayViewPasswordFields(databaseHelper: DatabaseHelper, navHostController: NavHostController, sessionManager: SessionManager){
+    private fun DisplayViewPasswordFields(
+        databaseHelper: DatabaseHelper,
+        navHostController: NavHostController,
+        sessionManager: SessionManager
+    ){
         val context = LocalContext.current
         val clipboardManager = LocalClipboardManager.current
         val focusManager = LocalFocusManager.current
@@ -46,8 +50,8 @@ class ViewPasswordsActivity {
                 .fillMaxSize()
                 .clickable { focusManager.clearFocus() }
         ) {
-            //val columnWidth = 320.dp
-            /*val widthPx = with(LocalDensity.current){
+            /*val columnWidth = 320.dp
+            val widthPx = with(LocalDensity.current){
                 (columnWidth - 30.dp).toPx()
             }*/
             //val anchors = mapOf(0f to 0, widthPx to 1)
@@ -259,7 +263,11 @@ class ViewPasswordsActivity {
     }
 
     @Composable
-    fun ViewPasswordsScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper, sessionManager: SessionManager) {
+    fun ViewPasswordsScreen(
+        navHostController: NavHostController,
+        databaseHelper: DatabaseHelper,
+        sessionManager: SessionManager
+    ) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))

@@ -1,7 +1,6 @@
 package com.rjulsaint.impasse
 
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,14 +23,14 @@ class Drawer {
     @Composable
     fun AppDrawer(coroutineScope: CoroutineScope, scaffoldState: ScaffoldState, navHostController: NavHostController) {
         val navigationItems = listOf(
-            NavDrawerItem("Home", ScreenNavigation.Login.route, Icons.Rounded.Home),
+            NavDrawerItem("Login", ScreenNavigation.Login.route, Icons.Rounded.Home),
             NavDrawerItem("User", ScreenNavigation.NewUser.route, Icons.Rounded.Face),
             NavDrawerItem("Add Password", ScreenNavigation.AddPassword.route, Icons.Rounded.Add),
             NavDrawerItem("Password Vault", ScreenNavigation.ViewPasswords.route, Icons.Rounded.Lock)
         )
         Column(
-            modifier = Modifier
-                .background(color = Color.LightGray)
+            /*modifier = Modifier
+                .background(color = Color.LightGray)*/
         ) {
             navigationItems.forEach { item ->
                 val backStackEntry = navHostController.currentBackStackEntryAsState()
@@ -70,6 +69,7 @@ class Drawer {
                             modifier = Modifier
                                 .padding(start = 24.dp),
                             text = item.name,
+                            color = Color.Black
                         )
                     }
                 }

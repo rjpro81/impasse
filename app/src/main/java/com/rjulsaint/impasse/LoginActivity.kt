@@ -30,7 +30,11 @@ import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 class LoginActivity {
     private val tag : String = "LoginActivity"
     @Composable
-    private fun DisplayLoginFields(navHostController: NavHostController, databaseHelper: DatabaseHelper, sessionManager: SessionManager) {
+    private fun DisplayLoginFields(
+        navHostController: NavHostController,
+        databaseHelper: DatabaseHelper,
+        sessionManager: SessionManager
+    ) {
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
         Row(
@@ -129,10 +133,9 @@ class LoginActivity {
                         onClick =
                         {
                             var valid = false
+                            sessionManager.setUserNameForSession(userName)
+                            sessionManager.setMasterPasswordForSession(masterPassword)
                             try {
-                                sessionManager.setUserName(userName)
-                                sessionManager.setMasterPassword(masterPassword)
-
                                 valid = databaseHelper.masterPasswordLogin(
                                     databaseHelper.writeableDB,
                                     sessionManager.sessionMasterPassword!!,
@@ -150,10 +153,8 @@ class LoginActivity {
                                 }
                             } else {
                                 textFieldInputIsError = true
+                                masterPassword = ""
                             }
-
-                            userName = ""
-                            masterPassword = ""
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
@@ -168,7 +169,11 @@ class LoginActivity {
     }
 
     @Composable
-    fun DisplayLoginScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper, sessionManager: SessionManager) {
+    fun DisplayLoginScreen(
+        navHostController: NavHostController,
+        databaseHelper: DatabaseHelper,
+        sessionManager: SessionManager
+    ) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -215,7 +220,7 @@ class LoginActivity {
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {
-                    DisplayLoginFields(navHostController, databaseHelper, sessionManager)
+                    DisplayLoginFields(navHostController, databaseHelper,sessionManager)
                 }
             }
         }

@@ -1,18 +1,18 @@
 package com.rjulsaint.impasse
 
-class SessionManager() {
+class SessionManager {
     var sessionUserName: String? = null
     var sessionMasterPassword: String? = null
 
-    companion object{
+    companion object {
         val instance = SessionManager()
     }
 
-    fun setUserName(userName:String){
-        instance.sessionUserName = userName
+    fun setUserNameForSession(userName: String){
+        sessionUserName = userName
     }
 
-    fun setMasterPassword(masterPassword:String){
-        instance.sessionMasterPassword = masterPassword
+    fun setMasterPasswordForSession(password: String){
+        sessionMasterPassword = password
     }
 }
