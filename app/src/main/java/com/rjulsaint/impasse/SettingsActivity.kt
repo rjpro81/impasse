@@ -1,5 +1,6 @@
 package com.rjulsaint.impasse
 
+
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -8,10 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,9 +27,13 @@ import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
 class SettingsActivity {
-    private val tag : String = "SettingsActivity"
+    private val tag: String = "SettingsActivity"
+
     @Composable
-    private fun DisplaySettingsFields(navHostController: NavHostController, databaseHelper: DatabaseHelper){
+    private fun DisplaySettingsFields(
+        navHostController: NavHostController,
+        databaseHelper: DatabaseHelper
+    ) {
         val context = LocalContext.current
         val focusManager = LocalFocusManager.current
         Column(
@@ -41,14 +43,20 @@ class SettingsActivity {
         ) {
             val openDialog = remember { mutableStateOf(false) }
             val dismissAlertDialog = remember { mutableStateOf(true) }
-            if(openDialog.value) {
+            val errorOnSubmission by remember { mutableStateOf(false) }
+            val eventName = remember { mutableStateOf("Reset Database") }
+
+            if (openDialog.value) {
                 AlertDialog(
                     onDismissRequest = { dismissAlertDialog.value },
                     title = {
                         Text(text = "Alert!!")
                     },
                     text = {
-                        Text(text = "Are you sure you want to reset database?\nThis will delete all saved application data")
+                        Text(
+                            text = if (eventName.value == "Reset Database") "Are you sure you want to reset database?\nThis will delete all saved application data" else "Are you sure you want to delete all passwords?\n" +
+                                    "This cannot be undone"
+                        )
                     },
                     buttons = {
                         Row(
@@ -59,18 +67,18 @@ class SettingsActivity {
                             Button(
                                 onClick = {
                                     try {
-                                        databaseHelper.onUpgrade(databaseHelper.writeableDB, 1, 2)
+                                        if(eventName.value == "Reset Database") databaseHelper.onUpgrade(databaseHelper.writeableDB, 1, 2) else databaseHelper.deleteAllPasswords(databaseHelper.writeableDB)
                                         Toast.makeText(
                                             context,
-                                            "New database created",
+                                            if (eventName.value == "Reset Database") "Database has been reset" else "Passwords deleted",
                                             Toast.LENGTH_SHORT
                                         )
                                             .show()
-                                        navHostController.navigate(ScreenNavigation.Login.route)
+                                        if(eventName.value == "Reset Database") navHostController.navigate(ScreenNavigation.Login.route)
                                     } catch (ex: Exception) {
                                         Log.e(
                                             tag,
-                                            "Unable to access database to reset or update database.",
+                                            if (eventName.value == "Reset Database") "Unable to access database to reset database." else "Unable to access database to delete passwords",
                                             ex
                                         )
                                     }
@@ -94,6 +102,9 @@ class SettingsActivity {
                     )
                 )
             }
+
+
+
             Row(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
@@ -106,22 +117,35 @@ class SettingsActivity {
                     .padding(top = 8.dp, bottom = 8.dp)
             )
             Row {
-                Icon(painter = painterResource(id = R.drawable.baseline_dataset_24), contentDescription = "Reset Database", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_dataset_24),
+                    contentDescription = "Reset Database",
+                    modifier = Modifier
+                        .size(50.dp)
+                        .padding(start = 10.dp, end = 10.dp)
+                )
 
                 ClickableText(
                     onClick = {
                         openDialog.value = true
+                        eventName.value = "Reset Database"
                     },
                     text = AnnotatedString(text = "Reset Database"),
                     style = TextStyle(
                         color = Color.DarkGray,
-                        fontSize = 25.sp
+                        fontSize = 20.sp
                     ),
                 )
             }
 
-            Row{
-                Icon(painter = painterResource(id = R.drawable.baseline_edit_24), contentDescription = "Edit Users", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
+            Row {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_edit_24),
+                    contentDescription = "Edit Users",
+                    modifier = Modifier
+                        .size(50.dp)
+                        .padding(start = 10.dp, end = 10.dp)
+                )
 
                 ClickableText(
                     onClick = {
@@ -130,13 +154,19 @@ class SettingsActivity {
                     text = AnnotatedString(text = "Edit Users"),
                     style = TextStyle(
                         color = Color.DarkGray,
-                        fontSize = 25.sp
+                        fontSize = 20.sp
                     ),
                 )
             }
 
-            Row{
-                Icon(painter = painterResource(id = R.drawable.baseline_palette_24), contentDescription = "Themes", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
+            Row {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_palette_24),
+                    contentDescription = "Themes",
+                    modifier = Modifier
+                        .size(50.dp)
+                        .padding(start = 10.dp, end = 10.dp)
+                )
 
                 ClickableText(
                     onClick = {
@@ -145,13 +175,41 @@ class SettingsActivity {
                     text = AnnotatedString(text = "Themes"),
                     style = TextStyle(
                         color = Color.DarkGray,
-                        fontSize = 25.sp
+                        fontSize = 20.sp
                     ),
                 )
             }
 
-            Row{
-                Icon(painter = painterResource(id = R.drawable.baseline_logout_24), contentDescription = "Logout", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
+            Row {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_delete_24),
+                    "Delete Icon",
+                    modifier = Modifier
+                        .size(50.dp)
+                        .padding(start = 10.dp, end = 10.dp)
+                )
+
+                ClickableText(
+                    onClick = {
+                        openDialog.value = true
+                        eventName.value = "Reset Database"
+                    },
+                    text = AnnotatedString(text = "Delete Passwords"),
+                    style = TextStyle(
+                        color = Color.DarkGray,
+                        fontSize = 20.sp
+                    ),
+                )
+            }
+
+            Row {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_logout_24),
+                    contentDescription = "Logout",
+                    modifier = Modifier
+                        .size(50.dp)
+                        .padding(start = 10.dp, end = 10.dp)
+                )
 
                 ClickableText(
                     onClick = {
@@ -160,31 +218,44 @@ class SettingsActivity {
                     text = AnnotatedString(text = "Logout"),
                     style = TextStyle(
                         color = Color.DarkGray,
-                        fontSize = 25.sp
+                        fontSize = 20.sp
                     ),
                 )
             }
 
+            //This code will be used to determine if password has been submitted successfully
+            if (errorOnSubmission) {
+                Text(
+                    text = "There was an error on password submission please retry",
+                    color = MaterialTheme.colors.error,
+                    style = MaterialTheme.typography.caption,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
         }
     }
 
     @Composable
-    fun DisplaySettingsScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
+    fun DisplaySettingsScreen(
+        navHostController: NavHostController,
+        databaseHelper: DatabaseHelper
+    ) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
             Scaffold(
-                topBar = { AppBar().TopBar(
-                    coroutineScope = coroutineScope,
-                    scaffoldState = scaffoldState,
-                    databaseHelper = databaseHelper,
-                    navHostController = navHostController
-                ) },
+                topBar = {
+                    AppBar().TopBar(
+                        coroutineScope = coroutineScope,
+                        scaffoldState = scaffoldState,
+                        navHostController = navHostController
+                    )
+                },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,
                 drawerGesturesEnabled = true,
                 drawerContent = {
-                    if(navHostController.currentBackStackEntry?.destination?.route != "login_screen")
+                    if (navHostController.currentBackStackEntry?.destination?.route != "login_screen")
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -212,7 +283,11 @@ class SettingsActivity {
                                 )
                             }
                             Spacer(modifier = Modifier.height(24.dp))
-                            Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
+                            Drawer().AppDrawer(
+                                coroutineScope = coroutineScope,
+                                scaffoldState = scaffoldState,
+                                navHostController = navHostController
+                            )
                         }
                 }
             ) { contentPadding ->

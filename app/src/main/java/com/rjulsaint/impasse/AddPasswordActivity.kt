@@ -27,12 +27,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
-import java.sql.SQLException
 
 class AddPasswordActivity {
     private val tag : String = "AddPasswordActivity"
     @Composable
-    private fun DisplayAddPasswordFields(databaseHelper: DatabaseHelper) {
+    private fun DisplayAddPasswordFields(databaseHelper: DatabaseHelper, sessionManager: SessionManager) {
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
         Row(
@@ -165,18 +164,11 @@ class AddPasswordActivity {
                     Button(
                         onClick =
                         {
-                            val masterPassword = LoginActivity().sessionMasterPassword
-                            val userName = LoginActivity().sessionUser
                             var index: Int = -1
-
                             try {
-                                val passwords : MutableList<List<String>> = databaseHelper.getAllUserStoredPasswords(databaseHelper.writeableDB, userName, masterPassword)
+                                val passwords : MutableList<List<String>> = databaseHelper.getAllUserStoredPasswords(databaseHelper.writeableDB, sessionManager.sessionUserName!!, sessionManager.sessionMasterPassword!!)
                                 passwords.forEach{ password ->
                                     index = password.binarySearch(webAddress)
-                                }
-
-                                if(index >= 0){
-                                    isExistingPassword = true
                                 }
 
                                 errorOnSubmission = databaseHelper.addNewPassword(
@@ -184,12 +176,15 @@ class AddPasswordActivity {
                                     webAddress,
                                     description,
                                     password,
-                                    masterPassword
+                                    sessionManager.sessionMasterPassword!!,
+                                    sessionManager.sessionUserName!!
                                 )!! < 0
                                 if(!errorOnSubmission){
                                     Toast.makeText(context, "Password added", Toast.LENGTH_SHORT).show()
+                                } else if(index >= 0){
+                                        isExistingPassword = true
                                 }
-                            } catch (ex : SQLException){
+                            } catch (ex : Exception){
                                 Log.e(tag, "Unable to access the database to add new password.", ex)
                             } catch (ex : NotFoundException){
                                 Log.e(tag, "Unable to locate resource for displaying toast.", ex)
@@ -203,7 +198,7 @@ class AddPasswordActivity {
                         elevation = ButtonDefaults.elevation(pressedElevation = 5.dp),
                         modifier = Modifier.padding(start = 2.dp)
                     ) {
-                        Text(text = "Add Password", color = Color.White)
+                        Text(text = "Save Password", color = Color.White)
                     }
                 }
                 Spacer(
@@ -230,7 +225,7 @@ class AddPasswordActivity {
     }
 
     @Composable
-    fun DisplayAddPasswordScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
+    fun DisplayAddPasswordScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper, sessionManager: SessionManager) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -238,7 +233,6 @@ class AddPasswordActivity {
                 topBar = { AppBar().TopBar(
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
-                    databaseHelper = databaseHelper,
                     navHostController = navHostController
                 ) },
                 scaffoldState = scaffoldState,
@@ -277,7 +271,7 @@ class AddPasswordActivity {
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding))
-                DisplayAddPasswordFields(databaseHelper)
+                DisplayAddPasswordFields(databaseHelper, sessionManager)
             }
         }
     }

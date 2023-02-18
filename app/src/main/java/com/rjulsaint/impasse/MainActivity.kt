@@ -12,7 +12,7 @@ import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
 class MainActivity : ComponentActivity() {
     private val tag : String = "MainActivity"
-
+    private val sessionManager = SessionManager.instance
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -31,6 +31,7 @@ class MainActivity : ComponentActivity() {
                     NavigationGraph().NavGraph(
                         navHostController = navHostController,
                         databaseHelper = databaseHelper,
+                        sessionManager = sessionManager
                     )
                 }
             }
