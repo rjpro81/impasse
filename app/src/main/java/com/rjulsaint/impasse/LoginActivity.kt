@@ -13,10 +13,18 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillNode
+import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalAutofill
+import androidx.compose.ui.platform.LocalAutofillTree
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -29,6 +37,7 @@ import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
 class LoginActivity {
     private val tag : String = "LoginActivity"
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     private fun DisplayLoginFields(
         navHostController: NavHostController,
@@ -54,10 +63,28 @@ class LoginActivity {
                 var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
                 var passwordVisible by remember { mutableStateOf(false) }
 
+                val autoFillNode = AutofillNode(
+                    autofillTypes = listOf(AutofillType.Username),
+                    onFill = { userName = it }
+                )
+                val autofill = LocalAutofill.current
+                LocalAutofillTree.current += autoFillNode
+
                 Text("Please login", color = Color.Gray)
                 Spacer(
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 8.dp)
+                        .onGloballyPositioned {
+                            autoFillNode.boundingBox = it.boundsInWindow()
+                        }.onFocusChanged { focusState ->
+                            autofill?.run {
+                                if (focusState.isFocused){
+                                    requestAutofillForNode(autoFillNode)
+                                } else {
+                                    cancelAutofillForNode(autoFillNode)
+                                }
+                            }
+                        }
                 )
                 OutlinedTextField(
                     value = userName,
