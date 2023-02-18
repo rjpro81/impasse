@@ -74,7 +74,7 @@ class AddPasswordActivity {
                     singleLine = true,
                     enabled = true,
                     shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    keyboardOptions = KeyboardOptions(autoCorrect = true),
                 )
 
                 OutlinedTextField(
@@ -88,7 +88,7 @@ class AddPasswordActivity {
                     singleLine = true,
                     enabled = true,
                     shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    keyboardOptions = KeyboardOptions(autoCorrect = true),
                 )
 
                 OutlinedTextField(
@@ -246,7 +246,7 @@ class AddPasswordActivity {
                 topBar = { AppBar().TopBar(
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
-                    navHostController = navHostController
+                    navHostController = navHostController,
                 ) },
                 scaffoldState = scaffoldState,
                 //drawerBackgroundColor = Color.DarkGray,
@@ -279,7 +279,7 @@ class AddPasswordActivity {
                             )
                         }
                         Spacer(modifier = Modifier.height(24.dp))
-                        Text(text = sessionManager.sessionUserName!!, color = Color.Magenta)
+                        (Text(text = sessionManager.sessionUserName!!, color = Color.Magenta))
                         Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
                     }
                 }

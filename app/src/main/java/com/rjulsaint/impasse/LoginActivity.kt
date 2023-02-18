@@ -96,7 +96,7 @@ class LoginActivity {
                     singleLine = true,
                     enabled = true,
                     shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    keyboardOptions = KeyboardOptions(autoCorrect = true),
                 )
                 OutlinedTextField(
                     value = masterPassword,
@@ -208,13 +208,13 @@ class LoginActivity {
                 topBar = { AppBar().TopBar(
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
-                    navHostController = navHostController
+                    navHostController = navHostController,
                 ) },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,
                 drawerGesturesEnabled = true,
                 drawerContent = {
-                    if(navHostController.currentBackStackEntry?.destination?.route != "login_screen")
+                    if(navHostController.currentBackStackEntry?.destination?.route != "Login")
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()

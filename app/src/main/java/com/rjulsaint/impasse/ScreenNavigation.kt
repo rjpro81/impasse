@@ -1,9 +1,9 @@
 package com.rjulsaint.impasse
 
 sealed class ScreenNavigation(val route: String) {
-    object Login: ScreenNavigation("login_screen")
-    object NewUser: ScreenNavigation("newUser_screen")
-    object ViewPasswords: ScreenNavigation("viewPasswords_screen")
-    object AddPassword: ScreenNavigation("addPasswords_screen")
+    object Login: ScreenNavigation("Login")
+    object NewUser: ScreenNavigation("NewUser")
+    object ViewPasswords: ScreenNavigation("Passwords")
+    object AddPassword: ScreenNavigation("Home")
     object Settings: ScreenNavigation("Settings")
 }

@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
-class NewUserActivity {
-    private val tag : String = "NewUserActivity"
+class CategoriesActivity {
+    private val tag : String = "CategoriesActivity"
     @Composable
     private fun DisplayUsernameFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
@@ -248,13 +248,13 @@ class NewUserActivity {
                 topBar = { AppBar().TopBar(
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
-                    navHostController = navHostController
+                    navHostController = navHostController,
                 ) },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,
                 drawerGesturesEnabled = true,
                 drawerContent = {
-                    if(navHostController.currentBackStackEntry?.destination?.route != "newUser_screen")
+                    if(navHostController.currentBackStackEntry?.destination?.route != "NewUser")
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()

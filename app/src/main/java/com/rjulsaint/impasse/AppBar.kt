@@ -26,6 +26,7 @@ class AppBar {
         scaffoldState: ScaffoldState,
         navHostController: NavHostController
     ){
+        val backStackEntry = navHostController.currentBackStackEntryAsState()
         TopAppBar(
             actions = {
                 IconButton(
@@ -42,7 +43,7 @@ class AppBar {
             },
             title = {
                 Text(
-                    text= "ImPasse",
+                    text= if(backStackEntry.value?.destination?.route == null || backStackEntry.value?.destination?.route == ScreenNavigation.Login.route)"ImPasse" else backStackEntry.value?.destination?.route!!,
                     modifier = Modifier.padding(start = 15.dp),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
@@ -54,7 +55,7 @@ class AppBar {
                         scaffoldState.drawerState.open()
                     }
                 }) {
-                    val backStackEntry = navHostController.currentBackStackEntryAsState()
+                    //val backStackEntry = navHostController.currentBackStackEntryAsState()
 
                     if(backStackEntry.value?.destination?.route != ScreenNavigation.Login.route) {
                         Icon(Icons.Rounded.Menu, "Hamburger Menu")

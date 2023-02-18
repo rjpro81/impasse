@@ -31,7 +31,7 @@ import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 class SettingsActivity {
     private val tag : String = "SettingsActivity"
     @Composable
-    private fun DisplaySettingsFields(navHostController: NavHostController, databaseHelper: DatabaseHelper){
+    private fun DisplaySettingsFields(navHostController: NavHostController, databaseHelper: DatabaseHelper, sessionManager: SessionManager){
         val context = LocalContext.current
         val focusManager = LocalFocusManager.current
         Column(
@@ -96,34 +96,15 @@ class SettingsActivity {
                     )
                 )
             }
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Text(text = "Application Settings", color = Color.Black)
-            }
+
             Spacer(
                 modifier = Modifier
                     .padding(top = 8.dp, bottom = 8.dp)
             )
-            Row {
-                Icon(painter = painterResource(id = R.drawable.baseline_dataset_24), contentDescription = "Reset Database", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
 
-                ClickableText(
-                    onClick = {
-                        openDialog.value = true
-                        eventName.value = "Reset Database"
-                    },
-                    text = AnnotatedString(text = "Reset Database"),
-                    style = TextStyle(
-                        color = Color.DarkGray,
-                        fontSize = 20.sp
-                    ),
-                )
-            }
-
-            Row{
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
                 Icon(painter = painterResource(id = R.drawable.baseline_edit_24), contentDescription = "Edit Users", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
 
                 ClickableText(
@@ -138,7 +119,9 @@ class SettingsActivity {
                 )
             }
 
-            Row{
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
                 Icon(painter = painterResource(id = R.drawable.baseline_delete_24), contentDescription = "Delete Password", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
 
                 ClickableText(
@@ -154,7 +137,9 @@ class SettingsActivity {
                 )
             }
 
-            Row{
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
                 Icon(painter = painterResource(id = R.drawable.baseline_palette_24), contentDescription = "Themes", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
 
                 ClickableText(
@@ -169,12 +154,16 @@ class SettingsActivity {
                 )
             }
 
-            Row{
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
                 Icon(painter = painterResource(id = R.drawable.baseline_logout_24), contentDescription = "Logout", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
 
                 ClickableText(
                     onClick = {
-                        //openDialog.value = true
+                        navHostController.navigate(ScreenNavigation.Login.route)
+                        sessionManager.sessionUserName = null
+                        Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
                     },
                     text = AnnotatedString(text = "Logout"),
                     style = TextStyle(
@@ -188,7 +177,7 @@ class SettingsActivity {
     }
 
     @Composable
-    fun DisplaySettingsScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
+    fun DisplaySettingsScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper, sessionManager: SessionManager) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -196,13 +185,13 @@ class SettingsActivity {
                 topBar = { AppBar().TopBar(
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
-                    navHostController = navHostController
+                    navHostController = navHostController,
                 ) },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,
                 drawerGesturesEnabled = true,
                 drawerContent = {
-                    if(navHostController.currentBackStackEntry?.destination?.route != "login_screen")
+                    if(navHostController.currentBackStackEntry?.destination?.route != "Login")
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -230,12 +219,14 @@ class SettingsActivity {
                                 )
                             }
                             Spacer(modifier = Modifier.height(24.dp))
+                            Text(text = sessionManager.sessionUserName!!, color = Color.Magenta)
+
                             Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
                         }
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {
-                    DisplaySettingsFields(navHostController, databaseHelper)
+                    DisplaySettingsFields(navHostController, databaseHelper, sessionManager)
                 }
             }
         }

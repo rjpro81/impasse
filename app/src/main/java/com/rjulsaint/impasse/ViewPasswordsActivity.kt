@@ -67,7 +67,6 @@ class ViewPasswordsActivity {
                         orientation = Orientation.Horizontal
                     )*/
             ) {
-                Text("Passwords", color = Color.Gray)
                 Spacer(
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 8.dp)
@@ -275,7 +274,7 @@ class ViewPasswordsActivity {
                 topBar = { AppBar().TopBar(
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
-                    navHostController = navHostController
+                    navHostController = navHostController,
                 ) },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,
@@ -307,6 +306,8 @@ class ViewPasswordsActivity {
                             )
                         }
                         Spacer(modifier = Modifier.height(24.dp))
+                        Text(text = sessionManager.sessionUserName!!, color = Color.Magenta)
+
                         Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
                     }
                 }
