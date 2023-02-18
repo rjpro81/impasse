@@ -248,7 +248,6 @@ class NewUserActivity {
                 topBar = { AppBar().TopBar(
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
-                    databaseHelper = databaseHelper,
                     navHostController = navHostController
                 ) },
                 scaffoldState = scaffoldState,

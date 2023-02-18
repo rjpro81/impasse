@@ -37,7 +37,8 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
         webAddress: String,
         description: String,
         password: String,
-        masterPassword: String
+        masterPassword: String,
+        userName: String
     ): Long? {
         return db?.insert(
             "ImpassePassword",
@@ -46,7 +47,8 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
                 Pair("webAddress", webAddress),
                 Pair("description", description),
                 Pair("password", password),
-                Pair("masterPassword", masterPassword)
+                Pair("masterPassword", masterPassword),
+                Pair("userName", userName)
             )
         )
     }

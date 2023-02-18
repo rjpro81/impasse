@@ -6,7 +6,6 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,28 +18,29 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
-import kotlin.math.roundToInt
 
 
 class ViewPasswordsActivity {
     private val tag : String = "ViewPasswordActivity"
-    @OptIn(ExperimentalMaterialApi::class)
+    //@OptIn(ExperimentalMaterialApi::class)
     @Composable
-    private fun DisplayViewPasswordFields(databaseHelper: DatabaseHelper, navHostController: NavHostController){
+    private fun DisplayViewPasswordFields(
+        databaseHelper: DatabaseHelper,
+        navHostController: NavHostController,
+        sessionManager: SessionManager
+    ){
         val context = LocalContext.current
         val clipboardManager = LocalClipboardManager.current
         val focusManager = LocalFocusManager.current
-        val swipeableState = rememberSwipeableState(0)
+        //val swipeableState = rememberSwipeableState(0)
         var webAddress: String? = null
         var description: String? = null
 
@@ -50,22 +50,22 @@ class ViewPasswordsActivity {
                 .fillMaxSize()
                 .clickable { focusManager.clearFocus() }
         ) {
-            val columnWidth = 320.dp
+            /*val columnWidth = 320.dp
             val widthPx = with(LocalDensity.current){
                 (columnWidth - 30.dp).toPx()
-            }
-            val anchors = mapOf(0f to 0, widthPx to 1)
+            }*/
+            //val anchors = mapOf(0f to 0, widthPx to 1)
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .swipeable(
+                    /*.swipeable(
                         state = swipeableState,
                         anchors = anchors,
                         thresholds = { _, _ -> FractionalThreshold(0.3f) },
                         orientation = Orientation.Horizontal
-                    )
+                    )*/
             ) {
                 Text("Passwords", color = Color.Gray)
                 Spacer(
@@ -76,8 +76,8 @@ class ViewPasswordsActivity {
                 try {
                     passwordsList = databaseHelper.getAllUserStoredPasswords(
                         databaseHelper.writeableDB,
-                        LoginActivity().sessionUser,
-                        LoginActivity().sessionMasterPassword
+                        sessionManager.sessionUserName!!,
+                        sessionManager.sessionMasterPassword!!
                     )
                 } catch(ex : Exception){
                     Log.e(tag, "Unable to access database to retrieve a list of all passwords.", ex)
@@ -88,7 +88,7 @@ class ViewPasswordsActivity {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(4.dp)
-                            .offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
+                            //.offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
                             .background(Color.DarkGray),
                         elevation = 0.dp,
                         shape = RoundedCornerShape(12.dp),
@@ -263,7 +263,11 @@ class ViewPasswordsActivity {
     }
 
     @Composable
-    fun ViewPasswordsScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
+    fun ViewPasswordsScreen(
+        navHostController: NavHostController,
+        databaseHelper: DatabaseHelper,
+        sessionManager: SessionManager
+    ) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -271,7 +275,6 @@ class ViewPasswordsActivity {
                 topBar = { AppBar().TopBar(
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
-                    databaseHelper = databaseHelper,
                     navHostController = navHostController
                 ) },
                 scaffoldState = scaffoldState,
@@ -309,7 +312,7 @@ class ViewPasswordsActivity {
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {
-                    DisplayViewPasswordFields(databaseHelper, navHostController)
+                    DisplayViewPasswordFields(databaseHelper, navHostController, sessionManager)
                 }
             }
         }

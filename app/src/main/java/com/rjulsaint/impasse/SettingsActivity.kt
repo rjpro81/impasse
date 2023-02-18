@@ -41,6 +41,7 @@ class SettingsActivity {
         ) {
             val openDialog = remember { mutableStateOf(false) }
             val dismissAlertDialog = remember { mutableStateOf(true) }
+            val eventName = remember { mutableStateOf("Reset Database") }
             if(openDialog.value) {
                 AlertDialog(
                     onDismissRequest = { dismissAlertDialog.value },
@@ -48,7 +49,7 @@ class SettingsActivity {
                         Text(text = "Alert!!")
                     },
                     text = {
-                        Text(text = "Are you sure you want to reset database?\nThis will delete all saved application data")
+                        Text(text = if(eventName.value == "Reset Database") "Are you sure you want to reset database?\nThis will delete all saved application data" else "Are you sure you want to delete all passwords?\nThis operation cannot be undone")
                     },
                     buttons = {
                         Row(
@@ -59,18 +60,19 @@ class SettingsActivity {
                             Button(
                                 onClick = {
                                     try {
-                                        databaseHelper.onUpgrade(databaseHelper.writeableDB, 1, 2)
+                                        var numOfRecordsDeleted = -1
+                                        if(eventName.value == "Reset Database") { databaseHelper.onUpgrade(databaseHelper.writeableDB, 1, 2) } else { numOfRecordsDeleted = databaseHelper.deleteAllPasswords(databaseHelper.writeableDB) }
                                         Toast.makeText(
                                             context,
-                                            "New database created",
+                                            if(eventName.value == "Reset Database"){ "Database has been reset" } else { if (numOfRecordsDeleted > 0){ "Passwords deleted" } else { null } },
                                             Toast.LENGTH_SHORT
                                         )
                                             .show()
-                                        navHostController.navigate(ScreenNavigation.Login.route)
+                                        if(eventName.value == "Reset Database") navHostController.navigate(ScreenNavigation.Login.route)
                                     } catch (ex: Exception) {
                                         Log.e(
                                             tag,
-                                            "Unable to access database to reset or update database.",
+                                            if (eventName.value == "Reset Database") "Unable to access database to reset or update database" else "Unable to access database to delete passwords",
                                             ex
                                         )
                                     }
@@ -111,11 +113,12 @@ class SettingsActivity {
                 ClickableText(
                     onClick = {
                         openDialog.value = true
+                        eventName.value = "Reset Database"
                     },
                     text = AnnotatedString(text = "Reset Database"),
                     style = TextStyle(
                         color = Color.DarkGray,
-                        fontSize = 25.sp
+                        fontSize = 20.sp
                     ),
                 )
             }
@@ -130,7 +133,23 @@ class SettingsActivity {
                     text = AnnotatedString(text = "Edit Users"),
                     style = TextStyle(
                         color = Color.DarkGray,
-                        fontSize = 25.sp
+                        fontSize = 20.sp
+                    ),
+                )
+            }
+
+            Row{
+                Icon(painter = painterResource(id = R.drawable.baseline_delete_24), contentDescription = "Delete Password", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
+
+                ClickableText(
+                    onClick = {
+                        openDialog.value = true
+                        eventName.value = "Delete Passwords"
+                    },
+                    text = AnnotatedString(text = "Delete Passwords"),
+                    style = TextStyle(
+                        color = Color.DarkGray,
+                        fontSize = 20.sp
                     ),
                 )
             }
@@ -145,7 +164,7 @@ class SettingsActivity {
                     text = AnnotatedString(text = "Themes"),
                     style = TextStyle(
                         color = Color.DarkGray,
-                        fontSize = 25.sp
+                        fontSize = 20.sp
                     ),
                 )
             }
@@ -160,7 +179,7 @@ class SettingsActivity {
                     text = AnnotatedString(text = "Logout"),
                     style = TextStyle(
                         color = Color.DarkGray,
-                        fontSize = 25.sp
+                        fontSize = 20.sp
                     ),
                 )
             }
@@ -177,7 +196,6 @@ class SettingsActivity {
                 topBar = { AppBar().TopBar(
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
-                    databaseHelper = databaseHelper,
                     navHostController = navHostController
                 ) },
                 scaffoldState = scaffoldState,

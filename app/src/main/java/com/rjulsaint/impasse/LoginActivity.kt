@@ -28,11 +28,13 @@ import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
 class LoginActivity {
-    var sessionUser = ""
-    var sessionMasterPassword = ""
     private val tag : String = "LoginActivity"
     @Composable
-    private fun DisplayLoginFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
+    private fun DisplayLoginFields(
+        navHostController: NavHostController,
+        databaseHelper: DatabaseHelper,
+        sessionManager: SessionManager
+    ) {
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
         Row(
@@ -47,7 +49,7 @@ class LoginActivity {
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                var password by remember { mutableStateOf("") }
+                var masterPassword by remember { mutableStateOf("") }
                 var userName by remember { mutableStateOf("") }
                 var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
                 var passwordVisible by remember { mutableStateOf(false) }
@@ -70,11 +72,11 @@ class LoginActivity {
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 )
                 OutlinedTextField(
-                    value = password,
+                    value = masterPassword,
                     label = { Text("Master Password") },
                     onValueChange =
                     {
-                        password = it
+                        masterPassword = it
                         textFieldInputIsError = false
                     },
                     singleLine = true,
@@ -131,18 +133,18 @@ class LoginActivity {
                         onClick =
                         {
                             var valid = false
+                            sessionManager.setUserNameForSession(userName)
+                            sessionManager.setMasterPasswordForSession(masterPassword)
                             try {
                                 valid = databaseHelper.masterPasswordLogin(
                                     databaseHelper.writeableDB,
-                                    password,
-                                    userName
+                                    sessionManager.sessionMasterPassword!!,
+                                    sessionManager.sessionUserName!!
                                 )
                             } catch(ex : Exception){
                                 Log.e(tag, "Unable to access database to validate user profile.", ex)
                             }
                             if (valid) {
-                                sessionUser = userName
-                                sessionMasterPassword = password
                                 Toast.makeText(context, "Logged in successfully", Toast.LENGTH_SHORT).show()
                                 try {
                                     navHostController.navigate(ScreenNavigation.AddPassword.route)
@@ -151,10 +153,8 @@ class LoginActivity {
                                 }
                             } else {
                                 textFieldInputIsError = true
+                                masterPassword = ""
                             }
-
-                            userName = ""
-                            password = ""
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
@@ -169,7 +169,11 @@ class LoginActivity {
     }
 
     @Composable
-    fun DisplayLoginScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
+    fun DisplayLoginScreen(
+        navHostController: NavHostController,
+        databaseHelper: DatabaseHelper,
+        sessionManager: SessionManager
+    ) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -177,7 +181,6 @@ class LoginActivity {
                 topBar = { AppBar().TopBar(
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
-                    databaseHelper = databaseHelper,
                     navHostController = navHostController
                 ) },
                 scaffoldState = scaffoldState,
@@ -217,7 +220,7 @@ class LoginActivity {
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {
-                    DisplayLoginFields(navHostController, databaseHelper)
+                    DisplayLoginFields(navHostController, databaseHelper,sessionManager)
                 }
             }
         }
