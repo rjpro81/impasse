@@ -68,13 +68,14 @@ class AddPasswordActivity {
                     label = { Text("Web Address") },
                     onValueChange =
                     {
-                        webAddress = it
+                        if(webAddress.length <= 60) webAddress = it
                         textFieldInputIsError = false
                     },
                     singleLine = true,
                     enabled = true,
                     shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
                     keyboardOptions = KeyboardOptions(autoCorrect = true),
+                    isError = textFieldInputIsError || errorOnSubmission || isExistingPassword
                 )
 
                 OutlinedTextField(
@@ -82,13 +83,14 @@ class AddPasswordActivity {
                     label = { Text("Site/Description") },
                     onValueChange =
                     {
-                        description = it
+                        if(description.length <= 60) description = it
                         textFieldInputIsError = false
                     },
                     singleLine = true,
                     enabled = true,
                     shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
                     keyboardOptions = KeyboardOptions(autoCorrect = true),
+                    isError = textFieldInputIsError || errorOnSubmission || isExistingPassword
                 )
 
                 OutlinedTextField(
@@ -96,7 +98,7 @@ class AddPasswordActivity {
                     label = { Text("Password") },
                     onValueChange =
                     {
-                        password = it
+                        if(password.length <= 60) password = it
                         textFieldInputIsError = false
                     },
                     singleLine = true,
@@ -116,7 +118,8 @@ class AddPasswordActivity {
                         IconButton(onClick = {passwordVisible = !passwordVisible}){
                             Icon(image, accessibilityDescription, Modifier.size(30.dp))
                         }
-                    }
+                    },
+                    isError = textFieldInputIsError || errorOnSubmission || isExistingPassword
                 )
 
                 if (textFieldInputIsError) {
@@ -225,7 +228,7 @@ class AddPasswordActivity {
                     elevation = ButtonDefaults.elevation(pressedElevation = 5.dp),
                     modifier = Modifier
                         .padding(end = 2.dp)
-                        .size(width = 200.dp, height = 36.dp)
+                        .size(width = 220.dp, height = 36.dp)
                 ) {
                     Text(text = "Generate", color = Color.White)
                 }

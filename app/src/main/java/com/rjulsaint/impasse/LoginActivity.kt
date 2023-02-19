@@ -91,7 +91,7 @@ class LoginActivity {
                     label = { Text("Username") },
                     onValueChange =
                     {
-                        userName = it
+                        if(userName.length <= 60) userName = it
                     },
                     singleLine = true,
                     enabled = true,
@@ -103,7 +103,7 @@ class LoginActivity {
                     label = { Text("Master Password") },
                     onValueChange =
                     {
-                        masterPassword = it
+                        if(masterPassword.length <= 60) masterPassword = it
                         textFieldInputIsError = false
                     },
                     singleLine = true,
@@ -123,7 +123,8 @@ class LoginActivity {
                         IconButton(onClick = {passwordVisible = !passwordVisible}){
                             Icon(image, description, Modifier.size(30.dp))
                         }
-                    }
+                    },
+                    isError = textFieldInputIsError
                 )
 
                 if (textFieldInputIsError) {

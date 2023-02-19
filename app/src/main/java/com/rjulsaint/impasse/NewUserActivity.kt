@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
-class CategoriesActivity {
-    private val tag : String = "CategoriesActivity"
+class NewUserActivity {
+    private val tag : String = "NewUserActivity"
     @Composable
     private fun DisplayUsernameFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
@@ -66,7 +66,7 @@ class CategoriesActivity {
                     label = { Text("Username") },
                     onValueChange =
                     {
-                        userName = it
+                        if(userName.length <= 60) userName = it
                         textFieldInputIsError = false
                     },
                     singleLine = true,
@@ -79,7 +79,7 @@ class CategoriesActivity {
                     label = { Text("Master Password") },
                     onValueChange =
                     {
-                        masterPassword = it
+                        if(masterPassword.length <= 60) masterPassword = it
                         textFieldInputIsError = false
                     },
                     singleLine = true,
@@ -106,7 +106,7 @@ class CategoriesActivity {
                     label = { Text("Confirm Password") },
                     onValueChange =
                     {
-                        confirmingPassword = it
+                        if(confirmingPassword.length <= 60) confirmingPassword = it
                     },
                     singleLine = true,
                     enabled = true,

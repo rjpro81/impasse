@@ -17,7 +17,7 @@ class NavigationGraph {
                 LoginActivity().DisplayLoginScreen(navHostController, databaseHelper, sessionManager)
             }
             composable(route = ScreenNavigation.NewUser.route){
-                CategoriesActivity().DisplayUsernameScreen(navHostController, databaseHelper)
+                NewUserActivity().DisplayUsernameScreen(navHostController, databaseHelper)
             }
             composable(route = ScreenNavigation.AddPassword.route){
                 AddPasswordActivity().DisplayAddPasswordScreen(

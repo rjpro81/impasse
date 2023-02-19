@@ -1,10 +1,9 @@
 package com.rjulsaint.impasse
 
-import android.content.res.Resources.NotFoundException
+//import android.content.res.Resources.NotFoundException
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -23,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
@@ -34,15 +34,15 @@ class ViewPasswordsActivity {
     @Composable
     private fun DisplayViewPasswordFields(
         databaseHelper: DatabaseHelper,
-        navHostController: NavHostController,
+        //navHostController: NavHostController,
         sessionManager: SessionManager
     ){
         val context = LocalContext.current
         val clipboardManager = LocalClipboardManager.current
         val focusManager = LocalFocusManager.current
         //val swipeableState = rememberSwipeableState(0)
-        var webAddress: String? = null
-        var description: String? = null
+        //var webAddress: String? = null
+        //var description: String? = null
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -86,10 +86,9 @@ class ViewPasswordsActivity {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(4.dp)
+                            .padding(4.dp),
                             //.offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
-                            .background(Color.DarkGray),
-                        elevation = 0.dp,
+                        elevation = 5.dp,
                         shape = RoundedCornerShape(12.dp),
                         backgroundColor = Color.LightGray
                     ) {
@@ -97,47 +96,75 @@ class ViewPasswordsActivity {
                             modifier = Modifier
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
                             verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            //horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    modifier = Modifier
+                                        .padding(start = 24.dp),
+                                    text = password[0],
+                                    fontSize = 25.sp
+                                )
+
+                                IconButton(onClick = {
+
+                                    }
+                                ) {
+                                    Icon(
+                                        painterResource(id = R.drawable.baseline_edit_24),
+                                        "Edit Password",
+                                        Modifier.size(30.dp)
+                                    )
+                                }
+                            }
+
                             Text(
                                 modifier = Modifier
                                     .padding(start = 24.dp),
-                                text = password[0]
+                                text = password[1],
+                                fontSize = 25.sp
                             )
-                            Text(
-                                modifier = Modifier
-                                    .padding(start = 24.dp),
-                                text = password[1]
-                            )
-                            var passwordVisible by remember { mutableStateOf(false) }
+                            val passwordVisible by remember { mutableStateOf(false) }
                             val openDialog = remember { mutableStateOf(false) }
                             val dismissAlertDialog = remember { mutableStateOf(true) }
 
-                            Text(
+                            Row (
                                 modifier = Modifier
-                                    .padding(start = 24.dp),
-                                text = if (passwordVisible) password[2] else "**********",
-                                softWrap = true,
-                                overflow = TextOverflow.Visible
-                            )
-                            val image = if (passwordVisible) {
-                                painterResource(id = R.drawable.baseline_visibility_24)
-                            } else {
-                                painterResource(id = R.drawable.baseline_visibility_off_24)
-                            }
-                            val passwordContentDescription =
-                                if (passwordVisible) "Hide password" else "Show password"
-
-                            Row {
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
                                 // Toggle button to hide or display password
-                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                /*IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                     Icon(
                                         image,
                                         passwordContentDescription,
                                         Modifier.size(30.dp)
                                     )
                                 }
-                                Spacer(modifier = Modifier.padding(start = 25.dp, end = 25.dp))
+                                Spacer(modifier = Modifier.padding(start = 25.dp, end = 25.dp))*/
+
+                                Text(
+                                    modifier = Modifier
+                                        .padding(start = 24.dp),
+                                    text = if (passwordVisible) password[2] else "**********",
+                                    softWrap = true,
+                                    overflow = TextOverflow.Visible,
+                                    fontSize = 25.sp
+                                )
+                                /*val image = if (passwordVisible) {
+                                    painterResource(id = R.drawable.baseline_visibility_24)
+                                } else {
+                                    painterResource(id = R.drawable.baseline_visibility_off_24)
+                                }
+                                val passwordContentDescription =
+                                    if (passwordVisible) "Hide password" else "Show password"*/
+
                                 IconButton(onClick = {
                                     clipboardManager.setText(
                                         AnnotatedString(password[2])
@@ -154,7 +181,7 @@ class ViewPasswordsActivity {
                                         Modifier.size(30.dp)
                                     )
                                 }
-                                Spacer(modifier = Modifier.padding(start = 25.dp, end = 25.dp))
+                                /*Spacer(modifier = Modifier.padding(start = 25.dp, end = 25.dp))
                                 IconButton(onClick = {
                                     webAddress = password[0]
                                     description = password[1]
@@ -165,7 +192,7 @@ class ViewPasswordsActivity {
                                         "Delete Password",
                                         Modifier.size(30.dp)
                                     )
-                                }
+                                }*/
                                 if (openDialog.value) {
                                     AlertDialog(
                                         onDismissRequest = { dismissAlertDialog.value },
@@ -185,15 +212,15 @@ class ViewPasswordsActivity {
                                                     onClick = {
                                                         openDialog.value = false
 
-                                                        var numOfRecordsDeleted: Int = -1
+                                                        //var numOfRecordsDeleted: Int = -1
 
                                                         try {
-                                                            numOfRecordsDeleted =
+                                                           /* numOfRecordsDeleted =
                                                                 databaseHelper.deletePassword(
                                                                     databaseHelper.writeableDB,
                                                                     webAddress!!,
                                                                     description!!
-                                                                )
+                                                                )*/
                                                         } catch (ex: Exception) {
                                                             Log.e(
                                                                 tag,
@@ -202,7 +229,7 @@ class ViewPasswordsActivity {
                                                             )
                                                         }
 
-                                                        if (numOfRecordsDeleted > 0) {
+                                                        /*if (numOfRecordsDeleted > 0) {
                                                             try {
                                                                 Toast.makeText(
                                                                     context,
@@ -225,7 +252,7 @@ class ViewPasswordsActivity {
                                                                     ex
                                                                 )
                                                             }
-                                                        }
+                                                        }*/
                                                     }
                                                 ) {
                                                     Text("Yes")
@@ -313,7 +340,7 @@ class ViewPasswordsActivity {
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {
-                    DisplayViewPasswordFields(databaseHelper, navHostController, sessionManager)
+                    DisplayViewPasswordFields(databaseHelper, /*navHostController,*/ sessionManager)
                 }
             }
         }
