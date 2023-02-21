@@ -24,21 +24,24 @@ class AppBar {
     fun TopBar(
         coroutineScope: CoroutineScope,
         scaffoldState: ScaffoldState,
-        navHostController: NavHostController
+        navHostController: NavHostController,
+        sessionManager: SessionManager,
     ){
         val backStackEntry = navHostController.currentBackStackEntryAsState()
         TopAppBar(
             actions = {
-                IconButton(
-                    onClick = {
-                        try {
-                            navHostController.navigate(ScreenNavigation.Settings.route)
-                        } catch (ex : IllegalArgumentException){
-                            Log.e(tag, "Unable to navigate due to invalid route given.", ex)
+                if(sessionManager.sessionUserName != null && sessionManager.sessionUserName != "") {
+                    IconButton(
+                        onClick = {
+                            try {
+                                navHostController.navigate(ScreenNavigation.Settings.route)
+                            } catch (ex: IllegalArgumentException) {
+                                Log.e(tag, "Unable to navigate due to invalid route given.", ex)
+                            }
                         }
+                    ) {
+                        Icon(Icons.Rounded.Settings, "Settings Icon")
                     }
-                ){
-                    Icon(Icons.Rounded.Settings, "Settings Icon")
                 }
             },
             title = {
@@ -50,14 +53,12 @@ class AppBar {
                     color = Color.White)
             },
             navigationIcon = {
-                IconButton(onClick = {
-                    coroutineScope.launch {
-                        scaffoldState.drawerState.open()
-                    }
-                }) {
-                    //val backStackEntry = navHostController.currentBackStackEntryAsState()
-
-                    if(backStackEntry.value?.destination?.route != ScreenNavigation.Login.route) {
+                if(sessionManager.sessionUserName != null && sessionManager.sessionUserName != "") {
+                    IconButton(onClick = {
+                        coroutineScope.launch {
+                            scaffoldState.drawerState.open()
+                        }
+                    }) {
                         Icon(Icons.Rounded.Menu, "Hamburger Menu")
                     }
                 }

@@ -239,7 +239,7 @@ class NewUserActivity {
 
     //@Preview(showBackground = true)
     @Composable
-    fun DisplayUsernameScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
+    fun DisplayUsernameScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper, sessionManager: SessionManager) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -249,6 +249,7 @@ class NewUserActivity {
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
                     navHostController = navHostController,
+                    sessionManager = sessionManager,
                 ) },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,

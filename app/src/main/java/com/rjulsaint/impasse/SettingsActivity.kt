@@ -186,6 +186,7 @@ class SettingsActivity {
                     coroutineScope = coroutineScope,
                     scaffoldState = scaffoldState,
                     navHostController = navHostController,
+                    sessionManager = sessionManager,
                 ) },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,

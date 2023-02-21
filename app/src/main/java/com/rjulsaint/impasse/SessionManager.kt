@@ -15,4 +15,14 @@ class SessionManager {
     fun setMasterPasswordForSession(password: String){
         sessionMasterPassword = password
     }
+    /*
+    fun loginHandler(){
+
+    }
+
+    fun logoutHandler(){
+
+    }
+
+     */
 }
