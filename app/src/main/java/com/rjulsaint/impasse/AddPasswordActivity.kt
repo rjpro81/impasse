@@ -11,6 +11,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -18,13 +21,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 import java.sql.SQLException
@@ -50,13 +58,21 @@ class AddPasswordActivity {
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                var webAddress by remember { mutableStateOf("") }
-                var description by remember { mutableStateOf("") }
+                var mExpanded by remember { mutableStateOf(false) }
+                var mSelectedText by remember { mutableStateOf("") }
+                var mTextFieldSize by remember { mutableStateOf(androidx.compose.ui.geometry.Size.Zero) }
+                var category by remember { mutableStateOf("") }
+                var userName by remember { mutableStateOf("") }
                 var password by remember { mutableStateOf("") }
                 var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
                 var passwordVisible by remember { mutableStateOf(false) }
                 var errorOnSubmission by remember { mutableStateOf(false) }
                 var isExistingPassword by rememberSaveable { mutableStateOf(false) }
+
+                val icon = if (mExpanded)
+                    Icons.Filled.KeyboardArrowUp
+                else
+                    Icons.Filled.KeyboardArrowDown
 
                 Text("Add Password", color = Color.Gray)
                 Spacer(
@@ -64,26 +80,54 @@ class AddPasswordActivity {
                         .padding(top = 8.dp, bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = webAddress,
-                    label = { Text("Web Address") },
+                    value = mSelectedText,
+                    label = { Text("Category") },
                     onValueChange =
                     {
-                        if(webAddress.length <= 60) webAddress = it
-                        textFieldInputIsError = false
+                        mSelectedText = it
                     },
-                    singleLine = true,
+                    modifier = Modifier
+                        .onGloballyPositioned { coordinates ->
+                        mTextFieldSize = coordinates.size.toSize()
+                    },
                     enabled = true,
                     shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
-                    keyboardOptions = KeyboardOptions(autoCorrect = true),
-                    isError = textFieldInputIsError || errorOnSubmission || isExistingPassword
+                    isError = textFieldInputIsError || errorOnSubmission || isExistingPassword,
+                    trailingIcon = {
+                        Icon(icon,"contentDescription",
+                            Modifier.clickable { mExpanded = !mExpanded })
+                    }
                 )
 
+                Box (
+                    modifier = Modifier
+                        .wrapContentSize(Alignment.TopStart)
+                ){
+                    DropdownMenu(
+                        expanded = mExpanded,
+                        onDismissRequest = { mExpanded = false },
+                        properties = PopupProperties(focusable = true),
+                        modifier = Modifier
+                            .width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
+                    ) {
+                        Categories(databaseHelper, sessionManager.sessionUserName!!).getUserCategories().forEach { category ->
+                            DropdownMenuItem(onClick = {
+                                mSelectedText = category
+                                mExpanded = false
+                            }) {
+                                Text(text = category)
+                            }
+                        }
+                    }
+                }
+
+
                 OutlinedTextField(
-                    value = description,
-                    label = { Text("Site/Description") },
+                    value = userName,
+                    label = { Text("Username/Description") },
                     onValueChange =
                     {
-                        if(description.length <= 60) description = it
+                        if(userName.length <= 60) userName = it
                         textFieldInputIsError = false
                     },
                     singleLine = true,
@@ -156,8 +200,8 @@ class AddPasswordActivity {
                     Button(
                         onClick =
                         {
-                            webAddress = ""
-                            description = ""
+                            category = ""
+                            userName = ""
                             password = ""
                         },
                         enabled = true,
@@ -171,29 +215,36 @@ class AddPasswordActivity {
                     Button(
                         onClick =
                         {
-                            val masterPassword = sessionManager.sessionMasterPassword
-                            val userName = sessionManager.sessionUserName
+                            val sessionMasterPassword = sessionManager.sessionMasterPassword
+                            val sessionUserName = sessionManager.sessionUserName
                             var index: Int = -1
 
                             try {
-                                val passwords : MutableList<List<String>> = databaseHelper.getAllUserStoredPasswords(databaseHelper.writeableDB, userName!!, masterPassword!!)
+                                val passwords : MutableList<List<String>> = databaseHelper.getAllUserStoredPasswords(databaseHelper.writeableDB, sessionUserName!!, sessionMasterPassword!!)
                                 passwords.forEach{ password ->
-                                    index = password.binarySearch(webAddress)
+                                    index = password.binarySearch(category)
                                 }
 
                                 if(index >= 0){
                                     isExistingPassword = true
                                 }
 
-                                errorOnSubmission = databaseHelper.addNewPassword(
-                                    databaseHelper.writeableDB,
-                                    webAddress,
-                                    description,
-                                    password,
-                                    masterPassword,
-                                    userName
-                                )!! < 0
-                                if(!errorOnSubmission){
+                                if(password == ""){
+                                    textFieldInputIsError = true
+                                }
+
+                                category = mSelectedText
+
+                                if(!isExistingPassword && !textFieldInputIsError && !errorOnSubmission) {
+                                    errorOnSubmission = databaseHelper.addNewPassword(
+                                        databaseHelper.writeableDB,
+                                        category,
+                                        userName,
+                                        password,
+                                        sessionMasterPassword,
+                                        sessionUserName
+                                    )!! < 0
+
                                     Toast.makeText(context, "Password added", Toast.LENGTH_SHORT).show()
                                 }
                             } catch (ex : SQLException){
@@ -201,8 +252,8 @@ class AddPasswordActivity {
                             } catch (ex : NotFoundException){
                                 Log.e(tag, "Unable to locate resource for displaying toast.", ex)
                             }
-                            webAddress = ""
-                            description = ""
+                            category = ""
+                            userName = ""
                             password = ""
                         },
                         enabled = true,
@@ -282,7 +333,7 @@ class AddPasswordActivity {
                             )
                         }
                         Spacer(modifier = Modifier.height(24.dp))
-                        (Text(text = sessionManager.sessionUserName!!, color = Color.Magenta))
+                        Text(text = AnnotatedString(text = sessionManager.sessionUserName!!), color = Color.Magenta)
                         Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
                     }
                 }

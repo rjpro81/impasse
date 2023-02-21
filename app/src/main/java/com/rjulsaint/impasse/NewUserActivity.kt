@@ -211,7 +211,7 @@ class NewUserActivity {
                                 isExistingUser = true
                             } else if (result!! >= 0 && masterPassword != "") {
                                 try {
-                                    Toast.makeText(context, "New user created", Toast.LENGTH_SHORT)
+                                    Toast.makeText(context, "Account created", Toast.LENGTH_SHORT)
                                         .show()
                                     navHostController.navigate(ScreenNavigation.Login.route)
                                 }catch(ex : NotFoundException){

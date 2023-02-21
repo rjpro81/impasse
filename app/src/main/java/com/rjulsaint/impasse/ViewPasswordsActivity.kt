@@ -7,7 +7,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,19 +29,20 @@ import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
 class ViewPasswordsActivity {
     private val tag : String = "ViewPasswordActivity"
-    //@OptIn(ExperimentalMaterialApi::class)
     @Composable
     private fun DisplayViewPasswordFields(
         databaseHelper: DatabaseHelper,
-        //navHostController: NavHostController,
         sessionManager: SessionManager
     ){
         val context = LocalContext.current
         val clipboardManager = LocalClipboardManager.current
         val focusManager = LocalFocusManager.current
-        //val swipeableState = rememberSwipeableState(0)
-        //var webAddress: String? = null
-        //var description: String? = null
+        var openDialogBox by remember { mutableStateOf(false) }
+        var category by remember { mutableStateOf("") }
+        var passUserName by remember { mutableStateOf("") }
+        var passPassword by remember { mutableStateOf("") }
+        var changeCardColor by remember { mutableStateOf(false) }
+        var changeCardFontColor by remember { mutableStateOf(false) }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -50,22 +50,11 @@ class ViewPasswordsActivity {
                 .fillMaxSize()
                 .clickable { focusManager.clearFocus() }
         ) {
-            /*val columnWidth = 320.dp
-            val widthPx = with(LocalDensity.current){
-                (columnWidth - 30.dp).toPx()
-            }*/
-            //val anchors = mapOf(0f to 0, widthPx to 1)
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
-                    /*.swipeable(
-                        state = swipeableState,
-                        anchors = anchors,
-                        thresholds = { _, _ -> FractionalThreshold(0.3f) },
-                        orientation = Orientation.Horizontal
-                    )*/
             ) {
                 Spacer(
                     modifier = Modifier
@@ -81,22 +70,20 @@ class ViewPasswordsActivity {
                 } catch(ex : Exception){
                     Log.e(tag, "Unable to access database to retrieve a list of all passwords.", ex)
                 }
-
+                var cardIndex = 0
                 passwordsList!!.forEach { password ->
+                    changeCardColor = (cardIndex % 2) == 0
+                    changeCardFontColor = (cardIndex % 2) == 0
                     Card(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp),
-                            //.offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
-                        elevation = 5.dp,
-                        shape = RoundedCornerShape(12.dp),
-                        backgroundColor = Color.LightGray
+                            .padding(10.dp),
+                            elevation = 5.dp,
+                        backgroundColor = if(changeCardColor) Color.Cyan else Color.Magenta
                     ) {
                         Column(
                             modifier = Modifier
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
                             verticalArrangement = Arrangement.Center,
-                            //horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Row(
                                 modifier = Modifier
@@ -108,11 +95,15 @@ class ViewPasswordsActivity {
                                     modifier = Modifier
                                         .padding(start = 24.dp),
                                     text = password[0],
-                                    fontSize = 25.sp
+                                    fontSize = 20.sp,
+                                    color = if(changeCardFontColor) Color.Black else Color.White
                                 )
 
                                 IconButton(onClick = {
-
+                                    openDialogBox = true
+                                    category = password[0]
+                                    passUserName = password[1]
+                                    passPassword = password[2]
                                     }
                                 ) {
                                     Icon(
@@ -123,11 +114,24 @@ class ViewPasswordsActivity {
                                 }
                             }
 
+
+                            if(openDialogBox){
+                                EditPasswordActivity().EditPasswordDialogBox(
+                                    onDismiss = { openDialogBox = false},
+                                    category,
+                                    passUserName,
+                                    passPassword,
+                                    databaseHelper,
+                                    sessionManager
+                                )
+                            }
+
                             Text(
                                 modifier = Modifier
                                     .padding(start = 24.dp),
                                 text = password[1],
-                                fontSize = 25.sp
+                                fontSize = 20.sp,
+                                color = if((cardIndex % 2) == 0) Color.Black else Color.White
                             )
                             val passwordVisible by remember { mutableStateOf(false) }
                             val openDialog = remember { mutableStateOf(false) }
@@ -139,32 +143,15 @@ class ViewPasswordsActivity {
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ){
-                                // Toggle button to hide or display password
-                                /*IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                    Icon(
-                                        image,
-                                        passwordContentDescription,
-                                        Modifier.size(30.dp)
-                                    )
-                                }
-                                Spacer(modifier = Modifier.padding(start = 25.dp, end = 25.dp))*/
-
                                 Text(
                                     modifier = Modifier
                                         .padding(start = 24.dp),
                                     text = if (passwordVisible) password[2] else "**********",
                                     softWrap = true,
                                     overflow = TextOverflow.Visible,
-                                    fontSize = 25.sp
+                                    fontSize = 20.sp,
+                                    color = if((cardIndex % 2) == 0) Color.Black else Color.White
                                 )
-                                /*val image = if (passwordVisible) {
-                                    painterResource(id = R.drawable.baseline_visibility_24)
-                                } else {
-                                    painterResource(id = R.drawable.baseline_visibility_off_24)
-                                }
-                                val passwordContentDescription =
-                                    if (passwordVisible) "Hide password" else "Show password"*/
-
                                 IconButton(onClick = {
                                     clipboardManager.setText(
                                         AnnotatedString(password[2])
@@ -181,18 +168,6 @@ class ViewPasswordsActivity {
                                         Modifier.size(30.dp)
                                     )
                                 }
-                                /*Spacer(modifier = Modifier.padding(start = 25.dp, end = 25.dp))
-                                IconButton(onClick = {
-                                    webAddress = password[0]
-                                    description = password[1]
-                                    openDialog.value = true
-                                }) {
-                                    Icon(
-                                        painterResource(id = R.drawable.baseline_delete_24),
-                                        "Delete Password",
-                                        Modifier.size(30.dp)
-                                    )
-                                }*/
                                 if (openDialog.value) {
                                     AlertDialog(
                                         onDismissRequest = { dismissAlertDialog.value },
@@ -281,7 +256,7 @@ class ViewPasswordsActivity {
                             }
                         }
                     }
-
+                    cardIndex++
                 }
                 Spacer(modifier = Modifier.weight(1f))
             }

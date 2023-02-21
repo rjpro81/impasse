@@ -13,14 +13,19 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
             ("CREATE TABLE IF NOT EXISTS ImpasseUser (id INTEGER PRIMARY KEY AUTOINCREMENT, userName TEXT NOT NULL, masterPassword TEXT NOT NULL)")
         db.execSQL(createUserTable)
         val createPasswordTable =
-            ("CREATE TABLE IF NOT EXISTS ImpassePassword (id INTEGER PRIMARY KEY AUTOINCREMENT,webAddress TEXT NOT NULL,description TEXT NOT NULL,password TEXT NOT NULL,masterPassword TEXT NOT NULL REFERENCES ImpasseUser, userName TEXT NOT NULL REFERENCES ImpasseUser)")
+            ("CREATE TABLE IF NOT EXISTS ImpassePassword (id INTEGER PRIMARY KEY AUTOINCREMENT,category TEXT NOT NULL REFERENCES Categories, accountUserName TEXT, password TEXT NOT NULL,masterPassword TEXT NOT NULL REFERENCES ImpasseUser, userName TEXT NOT NULL REFERENCES ImpasseUser)")
         db.execSQL(createPasswordTable)
+        val createCategoryTable =
+            ("CREATE TABLE IF NOT EXISTS Categories (id INTEGER PRIMARY KEY AUTOINCREMENT, category TEXT NOT NULL, userName TEXT REFERENCES ImpasseUser)")
+        db.execSQL(createCategoryTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS ImpasseUser")
         onCreate(db)
         db.execSQL("DROP TABLE IF EXISTS ImpassePassword")
+        onCreate(db)
+        db.execSQL("DROP TABLE IF EXISTS Categories")
         onCreate(db)
     }
 
@@ -31,11 +36,43 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
             contentValuesOf(Pair("masterPassword", masterPassword), Pair("userName", userName))
         )
     }
+    /*
+    fun addNewCategory(db: SQLiteDatabase, category: String, userName: String? = null): Long? {
+        return db.insert(
+            "Categories",
+            null,
+            contentValuesOf(Pair("category", category), Pair("userName", userName))
+        )
+    }
+    */
+    fun getAllCategories(db: SQLiteDatabase, userName: String? = null): MutableList<String>{
+        val result = db.query(
+            "Categories",
+            arrayOf("category"),
+            "userName = ?",
+            arrayOf(userName),
+            null,
+            null,
+            null,
+            null
+        )
+
+        val recordsList: MutableList<String> = ArrayList()
+
+        if (result.moveToFirst()) {
+            do {
+                val category: String = result.getString(0)
+                recordsList.add(category)
+            } while (result.moveToNext())
+        }
+        result.close()
+        return recordsList
+    }
 
     fun addNewPassword(
         db: SQLiteDatabase?,
-        webAddress: String,
-        description: String,
+        category: String,
+        accountUserName: String,
         password: String,
         masterPassword: String,
         userName: String
@@ -44,8 +81,8 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
             "ImpassePassword",
             null,
             contentValuesOf(
-                Pair("webAddress", webAddress),
-                Pair("description", description),
+                Pair("category", category),
+                Pair("accountUserName", accountUserName),
                 Pair("password", password),
                 Pair("masterPassword", masterPassword),
                 Pair("userName", userName)
@@ -57,15 +94,15 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
     fun deleteAllPasswords(db: SQLiteDatabase) : Int{
         return db.delete("ImpassePassword",null, null)
     }
-
-    fun deletePassword(db: SQLiteDatabase, webAddress: String, description: String): Int {
+    /*
+    fun deletePassword(db: SQLiteDatabase, category: String, accountUserName: String): Int {
         return db.delete(
             "ImpassePassword",
-            "WebAddress = ? AND description = ?",
-            arrayOf(webAddress, description)
+            "category = ? AND accountUserName = ?",
+            arrayOf(category, accountUserName)
         )
     }
-
+    */
     fun getAllUserStoredPasswords(
         db: SQLiteDatabase,
         userName: String,
@@ -73,7 +110,7 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
     ): MutableList<List<String>> {
         val result = db.query(
             "ImpassePassword",
-            arrayOf("webAddress", "description", "password"),
+            arrayOf("category", "accountUserName", "password"),
             "masterPassword = ? AND userName = ?",
             arrayOf(masterPassword, userName),
             null,
@@ -89,7 +126,7 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(context, "ImpasseData
                 val record: MutableList<String> = mutableListOf(
                     result.getString(0),
                     result.getString(1),
-                    result.getString(2)
+                    result.getString(2),
                 )
                 recordsList.add(record)
             } while (result.moveToNext())

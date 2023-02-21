@@ -60,19 +60,19 @@ class SettingsActivity {
                             Button(
                                 onClick = {
                                     try {
-                                        var numOfRecordsDeleted = -1
-                                        if(eventName.value == "Reset Database") { databaseHelper.onUpgrade(databaseHelper.writeableDB, 1, 2) } else { numOfRecordsDeleted = databaseHelper.deleteAllPasswords(databaseHelper.writeableDB) }
-                                        Toast.makeText(
-                                            context,
-                                            if(eventName.value == "Reset Database"){ "Database has been reset" } else { if (numOfRecordsDeleted > 0){ "Passwords deleted" } else { null } },
-                                            Toast.LENGTH_SHORT
-                                        )
-                                            .show()
-                                        if(eventName.value == "Reset Database") navHostController.navigate(ScreenNavigation.Login.route)
+                                        val numOfRecordsDeleted = databaseHelper.deleteAllPasswords(databaseHelper.writeableDB)
+                                        if(numOfRecordsDeleted > 0) {
+                                            Toast.makeText(
+                                                context,
+                                                "Passwords deleted",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                        openDialog.value = false
                                     } catch (ex: Exception) {
                                         Log.e(
                                             tag,
-                                            if (eventName.value == "Reset Database") "Unable to access database to reset or update database" else "Unable to access database to delete passwords",
+                                            "Unable to access database to delete passwords",
                                             ex
                                         )
                                     }
@@ -111,7 +111,7 @@ class SettingsActivity {
                     onClick = {
                         //openDialog.value = true
                     },
-                    text = AnnotatedString(text = "Edit Users"),
+                    text = AnnotatedString(text = "Edit Profile"),
                     style = TextStyle(
                         color = Color.DarkGray,
                         fontSize = 20.sp
