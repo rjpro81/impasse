@@ -17,9 +17,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ImPasseTheme {
-                val databaseHelper = DatabaseHelper(this)
+                val databaseHelper = DatabaseHelper(this).getInstance()
                 try {
-                    //databaseHelper.onCreate(databaseHelper.writableDatabase)
+                    //databaseHelper.onUpgrade(databaseHelper.writableDatabase, 1, 2)
+                    databaseHelper.onCreate(databaseHelper.writableDatabase)
                 } catch(ex : Exception){
                     Log.e(tag, "Unable to access database to perform onCreate function.", ex)
                 }

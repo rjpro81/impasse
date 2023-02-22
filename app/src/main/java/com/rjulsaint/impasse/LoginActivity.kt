@@ -172,6 +172,7 @@ class LoginActivity {
                             } catch(ex : Exception){
                                 Log.e(tag, "Unable to access database to validate user profile.", ex)
                             }
+
                             if (valid) {
                                 Toast.makeText(context, "Logged in successfully", Toast.LENGTH_SHORT).show()
                                 try {

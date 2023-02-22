@@ -1,5 +1,6 @@
 package com.rjulsaint.impasse
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -32,6 +33,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.PopupProperties
 
 class EditPasswordActivity {
+    private val tag: String = "EditPasswordActivity"
     @Composable
     fun EditPasswordDialogBox(onDismiss: () -> Unit, selectedCategory: String, selectedUserName: String, selectedPassword: String, databaseHelper: DatabaseHelper, sessionManager: SessionManager){
         var mExpanded by remember { mutableStateOf(false) }
@@ -171,7 +173,13 @@ class EditPasswordActivity {
                             text = AnnotatedString(text = "Delete"),
                             style = TextStyle(color = Color.Red,
                                 fontWeight = FontWeight.Bold, fontSize = 20.sp),
-                            onClick = {},
+                            onClick = {
+                                try{
+                                    databaseHelper.deletePassword(databaseHelper.writeableDB, category, userName, sessionManager.sessionUserName!!, sessionManager.sessionMasterPassword!!)
+                                } catch(ex: Exception){
+                                    Log.e(tag, "Unable to access database to delete password", ex)
+                                }
+                            },
                             modifier = Modifier.padding(end = 20.dp, bottom = 10.dp)
                         )
                         Spacer(modifier = Modifier.padding(start = 5.dp, end = 5.dp))
@@ -179,7 +187,13 @@ class EditPasswordActivity {
                             text = AnnotatedString(text = "Save"),
                             style = TextStyle(color = Color.Green,
                                 fontWeight = FontWeight.Bold, fontSize = 20.sp),
-                            onClick = {},
+                            onClick = {
+                                  try{
+                                      databaseHelper.updatePassword(databaseHelper.writeableDB, category, userName, password, sessionManager.sessionUserName!!, sessionManager.sessionMasterPassword!!)
+                                  } catch(ex: Exception){
+                                      Log.e(tag, "Unable to access database to update password")
+                                  }
+                            },
                             modifier = Modifier.padding(end = 20.dp, bottom = 10.dp)
                         )
                     }

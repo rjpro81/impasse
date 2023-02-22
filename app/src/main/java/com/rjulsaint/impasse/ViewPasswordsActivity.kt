@@ -6,7 +6,9 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,6 +46,7 @@ class ViewPasswordsActivity {
         var changeCardColor by remember { mutableStateOf(false) }
         var changeCardFontColor by remember { mutableStateOf(false) }
 
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -55,6 +58,7 @@ class ViewPasswordsActivity {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
             ) {
                 Spacer(
                     modifier = Modifier
@@ -70,6 +74,7 @@ class ViewPasswordsActivity {
                 } catch(ex : Exception){
                     Log.e(tag, "Unable to access database to retrieve a list of all passwords.", ex)
                 }
+
                 var cardIndex = 0
                 passwordsList!!.forEach { password ->
                     changeCardColor = (cardIndex % 2) == 0
@@ -117,7 +122,7 @@ class ViewPasswordsActivity {
 
                             if(openDialogBox){
                                 EditPasswordActivity().EditPasswordDialogBox(
-                                    onDismiss = { openDialogBox = false},
+                                    onDismiss = { openDialogBox = false },
                                     category,
                                     passUserName,
                                     passPassword,

@@ -252,6 +252,7 @@ class AddPasswordActivity {
                             } catch (ex : NotFoundException){
                                 Log.e(tag, "Unable to locate resource for displaying toast.", ex)
                             }
+
                             category = ""
                             userName = ""
                             password = ""
