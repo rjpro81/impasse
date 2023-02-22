@@ -104,7 +104,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, "ImpasseDatab
     fun deletePassword(db: SQLiteDatabase, category: String, passUserName: String, sessionUserName: String, sessionMasterPassword: String): Int {
         return db.delete(
             "ImpassePassword",
-            "category = ? AND passUserName = ? AMD userName = ? AND masterPassword = ?",
+            "category = ? AND passUserName = ? AND userName = ? AND masterPassword = ?",
             arrayOf(category, passUserName, sessionUserName, sessionMasterPassword)
         )
     }

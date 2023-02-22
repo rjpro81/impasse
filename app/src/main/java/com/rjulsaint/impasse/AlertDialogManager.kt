@@ -16,12 +16,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-
+*/
+/*
 class AlertDialogManager(private val databaseHelper: DatabaseHelper, private val context: Context) {
     private val tag: String = "AlertDialogManager"
 
     @Composable
-    fun DisplayDialog(currentOpenDialogState: Boolean, currentDismissAlertState: Boolean, currentEventName: String){
+    fun DisplayDialog(currentOpenDialogState: Boolean, currentDismissAlertState: Boolean, currentEventName: String, category: String, userName: String, sessionManager: SessionManager){
         val openDialog = remember { mutableStateOf(currentOpenDialogState) }
         val dismissAlertDialog = remember { mutableStateOf(currentDismissAlertState) }
         val eventName = remember { mutableStateOf(currentEventName) }
@@ -33,7 +34,7 @@ class AlertDialogManager(private val databaseHelper: DatabaseHelper, private val
                     Text(text = "Alert!!")
                 },
                 text = {
-                    Text(text = if(eventName.value == "Reset Database") "Are you sure you want to reset database?\nThis will delete all saved application data" else "Are you sure you want to delete all passwords?\nThis operation cannot be undone")
+                    Text(text = if (eventName.value == "Delete Password") "Are you sure you want to delete password?\nThis operation cannot be undone" else "")
                 },
                 buttons = {
                     Row(
@@ -44,11 +45,11 @@ class AlertDialogManager(private val databaseHelper: DatabaseHelper, private val
                         Button(
                             onClick = {
                                 try {
-                                    val numOfRecordsDeleted = databaseHelper.deleteAllPasswords(databaseHelper.writeableDB)
-                                    if(numOfRecordsDeleted > 0) {
+                                    val result = databaseHelper.deletePassword(databaseHelper.writeableDB, category, userName, sessionManager.sessionUserName!!, sessionManager.sessionMasterPassword!!)
+                                    if(result > 0) {
                                         Toast.makeText(
                                             context,
-                                            "Passwords deleted",
+                                            "Password deleted",
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
@@ -56,7 +57,7 @@ class AlertDialogManager(private val databaseHelper: DatabaseHelper, private val
                                 } catch (ex: Exception) {
                                     Log.e(
                                         tag,
-                                        "Unable to access database to delete passwords",
+                                        "Unable to access database to delete password",
                                         ex
                                     )
                                 }
@@ -82,5 +83,4 @@ class AlertDialogManager(private val databaseHelper: DatabaseHelper, private val
         }
     }
 }
-
- */
+      */

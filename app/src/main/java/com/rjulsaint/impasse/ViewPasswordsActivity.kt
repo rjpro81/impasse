@@ -39,7 +39,7 @@ class ViewPasswordsActivity {
         val context = LocalContext.current
         val clipboardManager = LocalClipboardManager.current
         val focusManager = LocalFocusManager.current
-        var openDialogBox by remember { mutableStateOf(false) }
+        var openDialogWindow by remember { mutableStateOf(false) }
         var category by remember { mutableStateOf("") }
         var passUserName by remember { mutableStateOf("") }
         var passPassword by remember { mutableStateOf("") }
@@ -105,10 +105,10 @@ class ViewPasswordsActivity {
                                 )
 
                                 IconButton(onClick = {
-                                    openDialogBox = true
                                     category = password[0]
                                     passUserName = password[1]
                                     passPassword = password[2]
+                                    openDialogWindow = true
                                     }
                                 ) {
                                     Icon(
@@ -120,9 +120,10 @@ class ViewPasswordsActivity {
                             }
 
 
-                            if(openDialogBox){
+                            if(openDialogWindow){
                                 EditPasswordActivity().EditPasswordDialogBox(
-                                    onDismiss = { openDialogBox = false },
+                                    onDismiss = { openDialogWindow = false },
+                                    //openDialogWindow = openDialogWindow,
                                     category,
                                     passUserName,
                                     passPassword,
