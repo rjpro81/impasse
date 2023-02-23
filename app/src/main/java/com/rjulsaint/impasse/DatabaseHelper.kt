@@ -42,12 +42,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, "ImpasseDatab
         )
     }
 
-    fun updatePassword(db: SQLiteDatabase, category: String, passUserName: String, password: String, sessionUserName: String, sessionPassword: String): Int {
+    fun updatePassword(db: SQLiteDatabase, oldCategory: String, oldPassUserName: String, newCategory: String,newUserName: String,newPassword: String, sessionUserName: String, sessionPassword: String): Int {
         return db.update(
             "ImpassePassword",
-            contentValuesOf(Pair("category", category), Pair("passUserName", passUserName), Pair("password", password)),
-            "userName = ? AND masterPassword = ?",
-            arrayOf(sessionUserName, sessionPassword)
+            contentValuesOf(Pair("category", newCategory), Pair("passUserName", newUserName), Pair("password", newPassword)),
+            "userName = ? AND masterPassword = ? AND passUserName = ? AND category = ?",
+            arrayOf(sessionUserName, sessionPassword, oldPassUserName, oldCategory)
         )
     }
 

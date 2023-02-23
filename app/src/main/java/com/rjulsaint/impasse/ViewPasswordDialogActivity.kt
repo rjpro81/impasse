@@ -30,14 +30,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.PopupProperties
 
-class EditPasswordActivity {
-    private val tag: String = "EditPasswordActivity"
+class ViewPasswordDialogActivity {
+    private val tag: String = "ViewPasswordDialogActivity"
     @Composable
-    fun EditPasswordDialogBox(onDismiss: () -> Unit, selectedCategory: String, selectedUserName: String, selectedPassword: String, databaseHelper: DatabaseHelper, sessionManager: SessionManager) {
+    fun DisplayViewPasswordDialogBox(onDismiss: () -> Unit, selectedCategory: String, selectedUserName: String, selectedPassword: String, databaseHelper: DatabaseHelper, sessionManager: SessionManager, isEditableDialog: Boolean) {
         var mExpanded by remember { mutableStateOf(false) }
         var mSelectedText by remember { mutableStateOf(selectedCategory) }
         var mTextFieldSize by remember { mutableStateOf(androidx.compose.ui.geometry.Size.Zero) }
-        var category by remember { mutableStateOf("") }
+        var category by remember { mutableStateOf(selectedCategory) }
         var userName by remember { mutableStateOf(selectedUserName) }
         var password by remember { mutableStateOf(selectedPassword) }
         var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
@@ -71,7 +71,7 @@ class EditPasswordActivity {
                             .background(color = Color(0xFF35898f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Edit Password", color = Color.White)
+                        Text(text = if(isEditableDialog)"Edit Password" else "Password", color = Color.White)
                     }
 
                     Spacer(modifier = Modifier.padding(top = 5.dp))
@@ -93,11 +93,14 @@ class EditPasswordActivity {
                                 mTextFieldSize = coordinates.size.toSize()
                             },
                         enabled = true,
+                        readOnly = true,
                         shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
                         isError = textFieldInputIsError || errorOnSubmission || isExistingPassword,
                         trailingIcon = {
-                            Icon(icon, "contentDescription",
-                                Modifier.clickable { mExpanded = !mExpanded })
+                            if(isEditableDialog) {
+                                Icon(icon, "contentDescription",
+                                    Modifier.clickable { mExpanded = !mExpanded })
+                            }
                         }
                     )
 
@@ -136,6 +139,7 @@ class EditPasswordActivity {
                         },
                         singleLine = true,
                         enabled = true,
+                        readOnly = true,
                         shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
                         keyboardOptions = KeyboardOptions(autoCorrect = true),
                         isError = textFieldInputIsError || errorOnSubmission || isExistingPassword
@@ -151,6 +155,7 @@ class EditPasswordActivity {
                         },
                         singleLine = true,
                         enabled = true,
+                        readOnly = true,
                         shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -176,72 +181,74 @@ class EditPasswordActivity {
                         horizontalArrangement = Arrangement.End,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(onClick = {
-                            try {
-                                category = mSelectedText
-                                val result = databaseHelper.deletePassword(
-                                    databaseHelper.writeableDB,
-                                    category,
-                                    userName,
-                                    sessionManager.sessionUserName!!,
-                                    sessionManager.sessionMasterPassword!!
-                                )
-                                if (result > 0) {
-                                    Toast.makeText(
-                                        context,
-                                        "Password deleted",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                        if(isEditableDialog) {
+                            IconButton(onClick = {
+                                try {
+                                    category = mSelectedText
+                                    val result = databaseHelper.deletePassword(
+                                        databaseHelper.writeableDB,
+                                        category,
+                                        userName,
+                                        sessionManager.sessionUserName!!,
+                                        sessionManager.sessionMasterPassword!!
+                                    )
+                                    if (result > 0) {
+                                        Toast.makeText(
+                                            context,
+                                            "Password deleted",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                    onDismiss()
+                                } catch (ex: Exception) {
+                                    Log.e(
+                                        tag,
+                                        "Unable to access database to delete password",
+                                        ex
+                                    )
                                 }
-                                onDismiss()
-                            } catch (ex: Exception) {
-                                Log.e(
-                                    tag,
-                                    "Unable to access database to delete password",
-                                    ex
+                            }
+                            ) {
+                                Icon(
+                                    painterResource(id = R.drawable.baseline_delete_24),
+                                    "Delete Password",
+                                    Modifier.size(30.dp)
                                 )
                             }
-                        }
-                        ) {
-                            Icon(
-                                painterResource(id = R.drawable.baseline_delete_24),
-                                "Delete Password",
-                                Modifier.size(30.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.padding(start = 5.dp, end = 5.dp))
-                        IconButton(onClick = {
-                            try {
-                                println(category)
-                                println(userName)
-                                println(password)
-                                println("HELLO WORLD!!!!!!!!!")
-                                val result = databaseHelper.updatePassword(
-                                    databaseHelper.writeableDB,
-                                    category,
-                                    userName,
-                                    password,
-                                    sessionManager.sessionUserName!!,
-                                    sessionManager.sessionMasterPassword!!
-                                )
-                                if (result > 0) {
-                                    Toast.makeText(
-                                        context,
-                                        "Password updated",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                            Spacer(modifier = Modifier.padding(start = 5.dp, end = 5.dp))
+                            IconButton(onClick = {
+                                try {
+                                    category = mSelectedText
+
+                                    val result = databaseHelper.updatePassword(
+                                        databaseHelper.writeableDB,
+                                        selectedCategory,
+                                        selectedUserName,
+                                        category,
+                                        userName,
+                                        password,
+                                        sessionManager.sessionUserName!!,
+                                        sessionManager.sessionMasterPassword!!
+                                    )
+                                    if (result > 0) {
+                                        Toast.makeText(
+                                            context,
+                                            "Password updated",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                    onDismiss()
+                                } catch (ex: Exception) {
+                                    Log.e(tag, "Unable to access database to update password")
                                 }
-                                onDismiss()
-                            } catch (ex: Exception) {
-                                Log.e(tag, "Unable to access database to update password")
                             }
-                        }
-                        ) {
-                            Icon(
-                                painterResource(id = R.drawable.baseline_save_24),
-                                "Save Updated Password",
-                                Modifier.size(30.dp)
-                            )
+                            ) {
+                                Icon(
+                                    painterResource(id = R.drawable.baseline_save_24),
+                                    "Save Updated Password",
+                                    Modifier.size(30.dp)
+                                )
+                            }
                         }
                     }
                 }

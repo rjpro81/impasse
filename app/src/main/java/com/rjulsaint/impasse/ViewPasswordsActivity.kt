@@ -45,6 +45,7 @@ class ViewPasswordsActivity {
         var passPassword by remember { mutableStateOf("") }
         var changeCardColor by remember { mutableStateOf(false) }
         var changeCardFontColor by remember { mutableStateOf(false) }
+        var isPasswordDialogEditable = false
 
 
         Row(
@@ -81,7 +82,14 @@ class ViewPasswordsActivity {
                     changeCardFontColor = (cardIndex % 2) == 0
                     Card(
                         modifier = Modifier
-                            .padding(10.dp),
+                            .padding(10.dp)
+                            .clickable(enabled = true, onClickLabel = "View Password", onClick =  {
+                                isPasswordDialogEditable = false
+                                category = password[0]
+                                passUserName = password[1]
+                                passPassword = password[2]
+                                openDialogWindow = true
+                            }),
                             elevation = 5.dp,
                         backgroundColor = if(changeCardColor) Color.Cyan else Color.Magenta
                     ) {
@@ -105,6 +113,7 @@ class ViewPasswordsActivity {
                                 )
 
                                 IconButton(onClick = {
+                                    isPasswordDialogEditable = true
                                     category = password[0]
                                     passUserName = password[1]
                                     passPassword = password[2]
@@ -121,14 +130,14 @@ class ViewPasswordsActivity {
 
 
                             if(openDialogWindow){
-                                EditPasswordActivity().EditPasswordDialogBox(
+                                ViewPasswordDialogActivity().DisplayViewPasswordDialogBox(
                                     onDismiss = { openDialogWindow = false },
-                                    //openDialogWindow = openDialogWindow,
                                     category,
                                     passUserName,
                                     passPassword,
                                     databaseHelper,
-                                    sessionManager
+                                    sessionManager,
+                                    isPasswordDialogEditable
                                 )
                             }
 

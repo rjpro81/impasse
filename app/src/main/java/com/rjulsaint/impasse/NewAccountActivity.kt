@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
-class NewUserActivity {
-    private val tag : String = "NewUserActivity"
+class NewAccountActivity {
+    private val tag : String = "NewAccountActivity"
     @Composable
     private fun DisplayUsernameFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
