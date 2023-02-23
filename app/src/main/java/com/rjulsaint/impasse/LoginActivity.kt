@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
+
 class LoginActivity {
     private val tag : String = "LoginActivity"
     @OptIn(ExperimentalComposeUiApi::class)
@@ -46,6 +47,7 @@ class LoginActivity {
     ) {
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
+        //val coroutineScope = rememberCoroutineScope()
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -76,9 +78,10 @@ class LoginActivity {
                         .padding(top = 8.dp, bottom = 8.dp)
                         .onGloballyPositioned {
                             autoFillNode.boundingBox = it.boundsInWindow()
-                        }.onFocusChanged { focusState ->
+                        }
+                        .onFocusChanged { focusState ->
                             autofill?.run {
-                                if (focusState.isFocused){
+                                if (focusState.isFocused) {
                                     requestAutofillForNode(autoFillNode)
                                 } else {
                                     cancelAutofillForNode(autoFillNode)
@@ -169,8 +172,12 @@ class LoginActivity {
                                     sessionManager.sessionMasterPassword!!,
                                     sessionManager.sessionUserName!!
                                 )
-                            } catch(ex : Exception){
-                                Log.e(tag, "Unable to access database to validate user profile.", ex)
+                            } catch (ex: Exception) {
+                                Log.e(
+                                    tag,
+                                    "Unable to access database to validate user profile.",
+                                    ex
+                                )
                             }
 
                             if (valid) {
