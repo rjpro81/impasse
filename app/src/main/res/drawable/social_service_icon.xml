@@ -5,5 +5,4 @@
     <path android:fillColor="#FF000000" android:pathData="m51.35,8.85c2.43,0 4.41,-1.97 4.41,-4.41 0,-2.43 -1.97,-4.41 -4.41,-4.41 -2.43,0 -4.4,1.98 -4.4,4.41 0,2.43 1.97,4.41 4.4,4.41z"/>
     <path android:fillColor="#FF000000" android:pathData="m27.45,8.87c-2.47,0 -4.47,-1.98 -4.47,-4.44 0,-2.45 2,-4.43 4.47,-4.43s4.47,1.98 4.47,4.43c0,2.45 -2.01,4.44 -4.47,4.44z"/>
     <path android:fillColor="#FF000000" android:pathData="M73.24,22.79m-3.09,0a3.09,3.09 0,1 1,6.18 0a3.09,3.09 0,1 1,-6.18 0"/>
-    <path android:fillColor="#FF000000" android:pathData=""/>
 </vector>
