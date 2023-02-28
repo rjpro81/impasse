@@ -28,10 +28,7 @@ class Drawer {
             NavDrawerItem("Add Password", ScreenNavigation.AddPassword.route, Icons.Rounded.Add),
             NavDrawerItem("Password Vault", ScreenNavigation.ViewPasswords.route, Icons.Rounded.Lock)
         )
-        Column(
-            /*modifier = Modifier
-                .background(color = Color.LightGray)*/
-        ) {
+        Column {
             navigationItems.forEach { item ->
                 val backStackEntry = navHostController.currentBackStackEntryAsState()
                 val selected = item.route == backStackEntry.value?.destination?.route

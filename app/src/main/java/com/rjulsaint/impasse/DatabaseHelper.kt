@@ -121,7 +121,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, "ImpasseDatab
             arrayOf(masterPassword, userName),
             null,
             null,
-            null,
+            "passUserName ASC",
             null
         )
 
@@ -171,7 +171,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, "ImpasseDatab
             arrayOf(userName, masterPassword),
             null,
             null,
-            null,
+            "userName ASC",
             null
         )
 
@@ -189,8 +189,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, "ImpasseDatab
         result.close()
         return recordsList
     }
-/*
-    fun updateUser(db: SQLiteDatabase, newUserName: String, newMasterPassword: String, oldUserName: String, oldMasterPassword: String):Int{
+
+    fun updateUserProfile(db: SQLiteDatabase, oldUserName: String, oldMasterPassword: String, newUserName: String, newMasterPassword: String):Int{
         return db.update(
             "ImpasseUser",
             contentValuesOf(Pair("userName", newUserName), Pair("masterPassword", newMasterPassword)),
@@ -198,5 +198,5 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, "ImpasseDatab
             arrayOf(oldUserName, oldMasterPassword)
         )
     }
-    */
+
 }

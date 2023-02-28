@@ -250,6 +250,7 @@ class NewAccountActivity {
                     scaffoldState = scaffoldState,
                     navHostController = navHostController,
                     sessionManager = sessionManager,
+                    databaseHelper = databaseHelper,
                 ) },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,
