@@ -47,7 +47,6 @@ class LoginActivity {
     ) {
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
-        //val coroutineScope = rememberCoroutineScope()
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
