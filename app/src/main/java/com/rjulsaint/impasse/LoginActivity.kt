@@ -199,6 +199,7 @@ class LoginActivity {
                         Text(text = "Login", color = Color.White)
                     }
                 }
+                BiometricLoginManager().DisplayBiometricPrompt()
             }
         }
     }
