@@ -2,7 +2,7 @@ package com.rjulsaint.impasse
 
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -33,21 +33,32 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
+import kotlinx.coroutines.CoroutineScope
+import java.util.concurrent.Executor
 
 
-class LoginActivity : AppCompatActivity(){
+class LoginActivity (
+    val navHostController: NavHostController,
+    val databaseHelper: DatabaseHelper,
+    val sessionManager: SessionManager,
+    val coroutineScope: CoroutineScope,
+    val scaffoldState: ScaffoldState
+) {
     private val tag : String = "LoginActivity"
+    private lateinit var executor: Executor
+    private lateinit var biometricPrompt: BiometricPrompt
+    private lateinit var promptInfo: BiometricPrompt.PromptInfo
+
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    private fun DisplayLoginFields(
-        navHostController: NavHostController,
-        databaseHelper: DatabaseHelper,
-        sessionManager: SessionManager
-    ) {
+    private fun DisplayLoginFields() {
         val focusManager = LocalFocusManager.current
-        val context = LocalContext.current
+        val context = LocalContext.current as FragmentActivity
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -206,29 +217,62 @@ class LoginActivity : AppCompatActivity(){
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 8.dp)
                 )
-                BiometricLoginActivity()
-                /*if(BiometricLoginManager().DisplayBiometricPrompt() == 1){
-                    userName = "********"
-                    masterPassword = "********"
-                    try {
-                        navHostController.navigate(ScreenNavigation.AddPassword.route)
-                    } catch (ex : IllegalArgumentException){
-                        Log.e(tag, "Unable to navigate to AddPasswordActivity screen.", ex)
-                    }
-                }*/
+
+
+                executor = ContextCompat.getMainExecutor(context)
+                biometricPrompt = BiometricPrompt(context, executor,
+                    object : BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationError(errorCode: Int,
+                                                           errString: CharSequence) {
+                            super.onAuthenticationError(errorCode, errString)
+                            Toast.makeText(context,
+                                "Authentication error: $errString", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+
+                        override fun onAuthenticationSucceeded(
+                            result: BiometricPrompt.AuthenticationResult) {
+                            super.onAuthenticationSucceeded(result)
+                            userName = "********"
+                            masterPassword = "********"
+                            Toast.makeText(context,
+                                "Authentication succeeded!", Toast.LENGTH_SHORT)
+                                .show()
+
+                            try {
+                                navHostController.navigate(ScreenNavigation.AddPassword.route)
+                            } catch (ex : IllegalArgumentException){
+                                Log.e(tag, "Unable to navigate to AddPasswordActivity screen.", ex)
+                            }
+                        }
+
+                        override fun onAuthenticationFailed() {
+                            super.onAuthenticationFailed()
+                            Toast.makeText(context, "Authentication failed",
+                                Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    })
+
+                promptInfo = BiometricPrompt.PromptInfo.Builder()
+                    .setTitle("Biometric login for Impasse")
+                    .setSubtitle("Log in using your biometric credential")
+                    .setNegativeButtonText("Use account password")
+                    .build()
+
+                IconButton(onClick = {
+                    biometricAuthentication = true
+                    biometricPrompt.authenticate(promptInfo)
+                }) {
+                    Icon(painter = painterResource(id = R.drawable.baseline_fingerprint_24), contentDescription = "Fingerprint button for biometric authentication")
+                }
             }
         }
     }
 
     @Composable
-    fun DisplayLoginScreen(
-        navHostController: NavHostController,
-        databaseHelper: DatabaseHelper,
-        sessionManager: SessionManager
-    ) {
+    fun DisplayLoginScreen() {
         ImPasseTheme {
-            val coroutineScope = rememberCoroutineScope()
-            val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
             Scaffold(
                 topBar = { AppBar().TopBar(
                     coroutineScope = coroutineScope,
@@ -274,7 +318,7 @@ class LoginActivity : AppCompatActivity(){
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {
-                    DisplayLoginFields(navHostController, databaseHelper,sessionManager)
+                    DisplayLoginFields()
                 }
             }
         }

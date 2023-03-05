@@ -27,11 +27,18 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
+import kotlinx.coroutines.CoroutineScope
 
-class NewAccountActivity {
+class NewAccountActivity(
+    val navHostController: NavHostController,
+    val databaseHelper: DatabaseHelper,
+    val sessionManager: SessionManager,
+    val coroutineScope: CoroutineScope,
+    val scaffoldState: ScaffoldState
+) {
     private val tag : String = "NewAccountActivity"
     @Composable
-    private fun DisplayUsernameFields(navHostController: NavHostController, databaseHelper: DatabaseHelper) {
+    private fun DisplayUsernameFields() {
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
         Row(
@@ -239,11 +246,8 @@ class NewAccountActivity {
 
     //@Preview(showBackground = true)
     @Composable
-    fun DisplayUsernameScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper, sessionManager: SessionManager) {
+    fun DisplayUsernameScreen() {
         ImPasseTheme {
-            val coroutineScope = rememberCoroutineScope()
-            val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
-            //val navHostController = rememberNavController()
             Scaffold(
                 topBar = { AppBar().TopBar(
                     coroutineScope = coroutineScope,
@@ -289,7 +293,7 @@ class NewAccountActivity {
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding))
-                DisplayUsernameFields(navHostController, databaseHelper)
+                DisplayUsernameFields()
             }
         }
     }

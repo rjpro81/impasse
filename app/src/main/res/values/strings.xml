@@ -3,4 +3,5 @@
     <string name="title_activity_new_user">NewUserActivity</string>
     <string name="title_activity_add_password">AddPasswordActivity</string>
     <string name="title_activity_view_passwords">ViewPasswordsActivity</string>
+    <string name="biometric_for_authentication">biometric button for authentication</string>
 </resources>

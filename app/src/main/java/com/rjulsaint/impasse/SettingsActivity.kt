@@ -27,11 +27,18 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
+import kotlinx.coroutines.CoroutineScope
 
-class SettingsActivity {
+class SettingsActivity(
+    val navHostController: NavHostController,
+    val databaseHelper: DatabaseHelper,
+    val sessionManager: SessionManager,
+    val coroutineScope: CoroutineScope,
+    val scaffoldState: ScaffoldState
+) {
     private val tag : String = "SettingsActivity"
     @Composable
-    private fun DisplaySettingsFields(navHostController: NavHostController, databaseHelper: DatabaseHelper, sessionManager: SessionManager){
+    private fun DisplaySettingsFields() {
         val context = LocalContext.current
         val focusManager = LocalFocusManager.current
         Column(
@@ -177,7 +184,7 @@ class SettingsActivity {
     }
 
     @Composable
-    fun DisplaySettingsScreen(navHostController: NavHostController, databaseHelper: DatabaseHelper, sessionManager: SessionManager) {
+    fun DisplaySettingsScreen() {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -228,7 +235,7 @@ class SettingsActivity {
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {
-                    DisplaySettingsFields(navHostController, databaseHelper, sessionManager)
+                    DisplaySettingsFields()
                 }
             }
         }

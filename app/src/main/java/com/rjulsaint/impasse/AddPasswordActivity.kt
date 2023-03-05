@@ -35,15 +35,19 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
+import kotlinx.coroutines.CoroutineScope
 import java.sql.SQLException
 
-class AddPasswordActivity {
+class AddPasswordActivity(
+    val navHostController: NavHostController,
+    val databaseHelper: DatabaseHelper,
+    val sessionManager: SessionManager,
+    val coroutineScope: CoroutineScope,
+    val scaffoldState: ScaffoldState
+) {
     private val tag : String = "AddPasswordActivity"
     @Composable
-    private fun DisplayAddPasswordFields(
-        databaseHelper: DatabaseHelper,
-        sessionManager: SessionManager
-    ) {
+    private fun DisplayAddPasswordFields() {
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
         Row(
@@ -289,11 +293,7 @@ class AddPasswordActivity {
     }
 
     @Composable
-    fun DisplayAddPasswordScreen(
-        navHostController: NavHostController,
-        databaseHelper: DatabaseHelper,
-        sessionManager: SessionManager
-    ) {
+    fun DisplayAddPasswordScreen() {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -342,7 +342,7 @@ class AddPasswordActivity {
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding))
-                DisplayAddPasswordFields(databaseHelper, sessionManager)
+                DisplayAddPasswordFields()
             }
         }
     }

@@ -27,15 +27,19 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
+import kotlinx.coroutines.CoroutineScope
 
 
-class ViewPasswordsActivity {
+class ViewPasswordsActivity(
+    val navHostController: NavHostController,
+    val databaseHelper: DatabaseHelper,
+    val sessionManager: SessionManager,
+    val coroutineScope: CoroutineScope,
+    val scaffoldState: ScaffoldState
+) {
     private val tag : String = "ViewPasswordActivity"
     @Composable
-    private fun DisplayViewPasswordFields(
-        databaseHelper: DatabaseHelper,
-        sessionManager: SessionManager
-    ){
+    private fun DisplayViewPasswordFields() {
         val context = LocalContext.current
         val clipboardManager = LocalClipboardManager.current
         val focusManager = LocalFocusManager.current
@@ -279,11 +283,7 @@ class ViewPasswordsActivity {
     }
 
     @Composable
-    fun ViewPasswordsScreen(
-        navHostController: NavHostController,
-        databaseHelper: DatabaseHelper,
-        sessionManager: SessionManager
-    ) {
+    fun ViewPasswordsScreen() {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -332,7 +332,7 @@ class ViewPasswordsActivity {
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {
-                    DisplayViewPasswordFields(databaseHelper, /*navHostController,*/ sessionManager)
+                    DisplayViewPasswordFields()
                 }
             }
         }
