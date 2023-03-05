@@ -1,34 +1,27 @@
 package com.rjulsaint.impasse
 
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
-import java.util.concurrent.Executor
-import androidx.biometric.BiometricPrompt.PromptInfo
+import android.os.Bundle
+import android.widget.ImageButton
+import android.widget.Toast
 import androidx.biometric.BiometricPrompt
-import androidx.compose.foundation.Image
-import androidx.compose.material.IconButton
-import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.core.content.ContextCompat
+import java.util.concurrent.Executor
 
-class BiometricLoginManager : FragmentActivity(){
+class BiometricLoginActivity : AppCompatActivity() {
     private lateinit var executor: Executor
     private lateinit var biometricPrompt: BiometricPrompt
-    private lateinit var promptInfo: PromptInfo
-
-    @Composable
-    fun DisplayBiometricPrompt(): Int {
-        val context = this//LocalContext.current as FragmentActivity
-        var authenticationResult by remember{ mutableStateOf( -1)}
-        executor = ContextCompat.getMainExecutor(context)
-        biometricPrompt = BiometricPrompt(context, executor,
+    private lateinit var promptInfo: BiometricPrompt.PromptInfo
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_biometric_login)
+        executor = ContextCompat.getMainExecutor(this)
+        biometricPrompt = BiometricPrompt(this, executor,
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationError(errorCode: Int,
                                                    errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
-                    Toast.makeText(context,
+                    Toast.makeText(applicationContext,
                         "Authentication error: $errString", Toast.LENGTH_SHORT)
                         .show()
                 }
@@ -36,38 +29,42 @@ class BiometricLoginManager : FragmentActivity(){
                 override fun onAuthenticationSucceeded(
                     result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
-                    Toast.makeText(context,
+                    Toast.makeText(applicationContext,
                         "Authentication succeeded!", Toast.LENGTH_SHORT)
                         .show()
-                    authenticationResult = 1
                 }
+
                 override fun onAuthenticationFailed() {
                     super.onAuthenticationFailed()
-                    Toast.makeText(context, "Authentication failed",
+                    Toast.makeText(applicationContext, "Authentication failed",
                         Toast.LENGTH_SHORT)
                         .show()
                 }
             })
 
-        promptInfo = PromptInfo.Builder()
+        promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle("Biometric login for Impasse")
             .setSubtitle("Log in using your biometric credential")
             .setNegativeButtonText("Use account password")
             .build()
 
-        DisplayFingerprint()
-        return authenticationResult
+        displayFingerprint()
+
     }
 
-    @Composable
-    fun DisplayFingerprint(){
+    private fun displayFingerprint(){
         // Prompt appears when user clicks "Log in".
-        IconButton(
+        val biometricLoginButton =
+            findViewById<ImageButton>(R.id.biometricButton)
+        biometricLoginButton.setOnClickListener {
+            biometricPrompt.authenticate(promptInfo)
+        }
+       /* IconButton(
             onClick = {
                 biometricPrompt.authenticate(promptInfo)
             }
         ){
             Image(painter = painterResource(id = R.drawable.baseline_fingerprint_24), contentDescription = "Fingerprint reader icon")
-        }
+        }*/
     }
 }

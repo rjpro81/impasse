@@ -2,6 +2,7 @@ package com.rjulsaint.impasse
 
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -36,7 +37,7 @@ import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
 
 
-class LoginActivity {
+class LoginActivity : AppCompatActivity(){
     private val tag : String = "LoginActivity"
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
@@ -63,6 +64,7 @@ class LoginActivity {
                 var userName by remember { mutableStateOf("") }
                 var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
                 var passwordVisible by remember { mutableStateOf(false) }
+                var biometricAuthentication by remember { mutableStateOf(false) }
 
                 val autoFillNode = AutofillNode(
                     autofillTypes = listOf(AutofillType.Username),
@@ -98,6 +100,7 @@ class LoginActivity {
                     singleLine = true,
                     enabled = true,
                     shape = AbsoluteRoundedCornerShape(corner = CornerSize(15.dp)),
+                    visualTransformation = if (biometricAuthentication) PasswordVisualTransformation() else VisualTransformation.None,
                     keyboardOptions = KeyboardOptions(autoCorrect = true),
                 )
                 OutlinedTextField(
@@ -199,7 +202,20 @@ class LoginActivity {
                         Text(text = "Login", color = Color.White)
                     }
                 }
-                BiometricLoginManager().DisplayBiometricPrompt()
+                Spacer(
+                    modifier = Modifier
+                        .padding(top = 8.dp, bottom = 8.dp)
+                )
+                BiometricLoginActivity()
+                /*if(BiometricLoginManager().DisplayBiometricPrompt() == 1){
+                    userName = "********"
+                    masterPassword = "********"
+                    try {
+                        navHostController.navigate(ScreenNavigation.AddPassword.route)
+                    } catch (ex : IllegalArgumentException){
+                        Log.e(tag, "Unable to navigate to AddPasswordActivity screen.", ex)
+                    }
+                }*/
             }
         }
     }
