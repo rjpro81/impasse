@@ -163,15 +163,15 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, "ImpasseDatab
         return valid
     }
 
-    fun getAllUsers(db: SQLiteDatabase, userName: String, masterPassword: String): MutableList<List<String>>{
+    fun getImpasseUser(db: SQLiteDatabase): MutableList<List<String>>{
         val result = db.query(
             "ImpasseUser",
             arrayOf("userName", "masterPassword"),
-            "userName = ? AND masterPassword = ?",
-            arrayOf(userName, masterPassword),
             null,
             null,
-            "userName ASC",
+            null,
+            null,
+            null,
             null
         )
 

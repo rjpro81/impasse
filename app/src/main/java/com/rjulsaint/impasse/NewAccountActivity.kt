@@ -199,7 +199,9 @@ class NewAccountActivity(
                             var result : Long? = null
                             var index : Int = -1
                             try {
-                                val users : MutableList<List<String>> = databaseHelper.getAllUsers(databaseHelper.writeableDB, userName, masterPassword)
+                                val users : MutableList<List<String>> = databaseHelper.getImpasseUser(
+                                    databaseHelper.writeableDB
+                                )
                                 users.forEach{ user ->
                                     index = user.binarySearch(userName)
                                 }

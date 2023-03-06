@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -18,6 +19,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
@@ -38,6 +40,7 @@ class ViewPasswordsActivity(
     val scaffoldState: ScaffoldState
 ) {
     private val tag : String = "ViewPasswordActivity"
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     private fun DisplayViewPasswordFields() {
         val context = LocalContext.current
@@ -50,6 +53,11 @@ class ViewPasswordsActivity(
         var changeCardColor by remember { mutableStateOf(false) }
         var changeCardFontColor by remember { mutableStateOf(false) }
         var isPasswordDialogEditable = false
+        val swipeState = rememberSwipeableState(initialValue = 0)
+
+        val squareSize = 48.dp
+        val sizePx = with(LocalDensity.current) { squareSize.toPx() }
+        val anchors = mapOf(0f to 0, sizePx to 1)
 
 
         Row(
@@ -64,6 +72,12 @@ class ViewPasswordsActivity(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
+                    .swipeable(
+                        state = swipeState,
+                        anchors = anchors,
+                        thresholds = { _, _ -> FractionalThreshold(0.3f) },
+                        orientation = Orientation.Horizontal
+                    )
             ) {
                 Spacer(
                     modifier = Modifier
@@ -87,7 +101,7 @@ class ViewPasswordsActivity(
                     Card(
                         modifier = Modifier
                             .padding(10.dp)
-                            .clickable(enabled = true, onClickLabel = "View Password", onClick =  {
+                            .clickable(enabled = true, onClickLabel = "View Password", onClick = {
                                 isPasswordDialogEditable = false
                                 category = password[0]
                                 passUserName = password[1]

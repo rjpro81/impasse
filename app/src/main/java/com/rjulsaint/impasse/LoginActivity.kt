@@ -233,8 +233,23 @@ class LoginActivity (
                         override fun onAuthenticationSucceeded(
                             result: BiometricPrompt.AuthenticationResult) {
                             super.onAuthenticationSucceeded(result)
-                            userName = "********"
-                            masterPassword = "********"
+                            biometricAuthentication = true
+                            var user : MutableList<List<String>>? = null
+                            try{
+                                user = databaseHelper.getImpasseUser(databaseHelper.writeableDB)
+                            } catch(ex: Exception){
+                                Log.e(
+                                    tag,
+                                    "Unable to access database to retrieve user.",
+                                    ex
+                                )
+                            }
+                            user?.forEach { user ->
+                                userName = user[0].toString()
+                                masterPassword = user[1].toString()
+                            }
+                            sessionManager.setUserNameForSession(userName)
+                            sessionManager.setMasterPasswordForSession(masterPassword)
                             Toast.makeText(context,
                                 "Authentication succeeded!", Toast.LENGTH_SHORT)
                                 .show()
@@ -261,7 +276,6 @@ class LoginActivity (
                     .build()
 
                 IconButton(onClick = {
-                    biometricAuthentication = true
                     biometricPrompt.authenticate(promptInfo)
                 }) {
                     Icon(painter = painterResource(id = R.drawable.baseline_fingerprint_24), contentDescription = "Fingerprint button for biometric authentication")
