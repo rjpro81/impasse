@@ -1,7 +1,9 @@
 package com.rjulsaint.impasse
 
+import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -30,8 +32,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.PopupProperties
 
-class ViewPasswordDialogActivity {
+class ViewPasswordDialogActivity : AppCompatActivity(){
     private val tag: String = "ViewPasswordDialogActivity"
+    var databaseHelper : DatabaseHelper? = null
     @Composable
     fun DisplayViewPasswordDialogBox(onDismiss: () -> Unit, selectedCategory: String, selectedUserName: String, selectedPassword: String, databaseHelper: DatabaseHelper, sessionManager: SessionManager, isEditableDialog: Boolean) {
         var mExpanded by remember { mutableStateOf(false) }
@@ -45,6 +48,7 @@ class ViewPasswordDialogActivity {
         val errorOnSubmission by remember { mutableStateOf(false) }
         val isExistingPassword by rememberSaveable { mutableStateOf(false) }
         val context = LocalContext.current
+        val writableDatabase: SQLiteDatabase = databaseHelper!!.writableDatabase
 
         Dialog(
             onDismissRequest = {
@@ -116,7 +120,6 @@ class ViewPasswordDialogActivity {
                                 .width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
                         ) {
                             Categories(
-                                databaseHelper,
                                 sessionManager.sessionUserName!!
                             ).getUserCategories().forEach { category ->
                                 DropdownMenuItem(onClick = {
@@ -186,7 +189,7 @@ class ViewPasswordDialogActivity {
                                 try {
                                     category = mSelectedText
                                     val result = databaseHelper.deletePassword(
-                                        databaseHelper.writeableDB,
+                                        writableDatabase,
                                         category,
                                         userName,
                                         sessionManager.sessionUserName!!,
@@ -221,7 +224,7 @@ class ViewPasswordDialogActivity {
                                     category = mSelectedText
 
                                     val result = databaseHelper.updatePassword(
-                                        databaseHelper.writeableDB,
+                                        writableDatabase,
                                         selectedCategory,
                                         selectedUserName,
                                         category,

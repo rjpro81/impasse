@@ -7,12 +7,8 @@ import android.database.sqlite.SQLiteOpenHelper
 import androidx.core.content.contentValuesOf
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, "ImpasseDatabase", null, 1) {
-    val writeableDB: SQLiteDatabase = this.writableDatabase
-    private var instance = this
+    //val writeableDB: SQLiteDatabase = this.writableDatabase
 
-    fun getInstance(): DatabaseHelper{
-        return instance
-    }
     override fun onCreate(db: SQLiteDatabase) {
         val createUserTable =
             ("CREATE TABLE IF NOT EXISTS ImpasseUser (id INTEGER PRIMARY KEY AUTOINCREMENT, userName TEXT NOT NULL, masterPassword TEXT NOT NULL)")

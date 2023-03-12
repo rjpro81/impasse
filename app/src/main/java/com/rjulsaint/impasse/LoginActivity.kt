@@ -1,7 +1,12 @@
 package com.rjulsaint.impasse
 
+import android.content.Intent
+import android.database.sqlite.SQLiteDatabase
+import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -35,27 +40,40 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
-import kotlinx.coroutines.CoroutineScope
 import java.util.concurrent.Executor
 
 
-class LoginActivity (
-    val navHostController: NavHostController,
-    val databaseHelper: DatabaseHelper,
-    val sessionManager: SessionManager,
-    val coroutineScope: CoroutineScope,
-    val scaffoldState: ScaffoldState
-) {
+class LoginActivity() : AppCompatActivity() {
     private val tag : String = "LoginActivity"
     private lateinit var executor: Executor
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
+    private val sessionManager = SessionManager.instance
+    var databaseHelper :DatabaseHelper? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            ImPasseTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colors.background
+                ) {
+                    databaseHelper = DatabaseHelper(this)
+                    DisplayLoginScreen(databaseHelper!!)
+                }
+            }
+        }
+    }
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    private fun DisplayLoginFields() {
+    private fun DisplayLoginFields(databaseHelper: DatabaseHelper) {
+        val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
+        val coroutineScope = rememberCoroutineScope()
+        val navHostController = rememberNavController()
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current as FragmentActivity
 
@@ -160,7 +178,8 @@ class LoginActivity (
                         onClick =
                         {
                             try {
-                                navHostController.navigate(ScreenNavigation.NewUser.route)
+                                val myIntent = Intent(this@LoginActivity, NewAccountActivity::class.java)
+                                this@LoginActivity.startActivity(myIntent)
                             } catch (ex : IllegalArgumentException){
                                 Log.e(tag, "Unable to navigate due to invalid route given.", ex)
                             }
@@ -179,9 +198,10 @@ class LoginActivity (
                             var valid = false
                             sessionManager.setUserNameForSession(userName)
                             sessionManager.setMasterPasswordForSession(masterPassword)
+                            val writableDatabase: SQLiteDatabase = databaseHelper!!.writableDatabase
                             try {
                                 valid = databaseHelper.masterPasswordLogin(
-                                    databaseHelper.writeableDB,
+                                    writableDatabase,
                                     sessionManager.sessionMasterPassword!!,
                                     sessionManager.sessionUserName!!
                                 )
@@ -196,7 +216,8 @@ class LoginActivity (
                             if (valid) {
                                 Toast.makeText(context, "Logged in successfully", Toast.LENGTH_SHORT).show()
                                 try {
-                                    navHostController.navigate(ScreenNavigation.AddPassword.route)
+                                    val myIntent = Intent(this@LoginActivity, AddPasswordActivity::class.java)
+                                    this@LoginActivity.startActivity(myIntent)
                                 } catch (ex : IllegalArgumentException){
                                     Log.e(tag, "Unable to navigate to AddPasswordActivity screen.", ex)
                                 }
@@ -236,7 +257,7 @@ class LoginActivity (
                             biometricAuthentication = true
                             var user : MutableList<List<String>>? = null
                             try{
-                                user = databaseHelper.getImpasseUser(databaseHelper.writeableDB)
+                                //user = databaseHelper.getImpasseUser(databaseHelper.writeableDB)
                             } catch(ex: Exception){
                                 Log.e(
                                     tag,
@@ -285,16 +306,13 @@ class LoginActivity (
     }
 
     @Composable
-    fun DisplayLoginScreen() {
+    fun DisplayLoginScreen(databaseHelper: DatabaseHelper) {
+        val coroutineScope = rememberCoroutineScope()
+        val scaffoldState = rememberScaffoldState()
+        val navHostController = rememberNavController()
         ImPasseTheme {
             Scaffold(
-                topBar = { AppBar().TopBar(
-                    coroutineScope = coroutineScope,
-                    scaffoldState = scaffoldState,
-                    navHostController = navHostController,
-                    sessionManager = sessionManager,
-                    databaseHelper = databaseHelper,
-                ) },
+                topBar = { AppBar(scaffoldState, coroutineScope).TopBar() },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,
                 drawerGesturesEnabled = true,
@@ -327,12 +345,15 @@ class LoginActivity (
                                 )
                             }
                             Spacer(modifier = Modifier.height(24.dp))
-                            Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
+                            Drawer().AppDrawer(
+                                coroutineScope = coroutineScope,
+                                scaffoldState = scaffoldState
+                            )
                         }
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {
-                    DisplayLoginFields()
+                    DisplayLoginFields(databaseHelper)
                 }
             }
         }

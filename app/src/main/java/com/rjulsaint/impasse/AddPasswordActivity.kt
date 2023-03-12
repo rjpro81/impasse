@@ -1,8 +1,12 @@
 package com.rjulsaint.impasse
 
 import android.content.res.Resources.NotFoundException
+import android.database.sqlite.SQLiteDatabase
+import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -33,21 +37,30 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.PopupProperties
-import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
-import kotlinx.coroutines.CoroutineScope
 import java.sql.SQLException
 
-class AddPasswordActivity(
-    val navHostController: NavHostController,
-    val databaseHelper: DatabaseHelper,
-    val sessionManager: SessionManager,
-    val coroutineScope: CoroutineScope,
-    val scaffoldState: ScaffoldState
-) {
+class AddPasswordActivity() : AppCompatActivity(){
     private val tag : String = "AddPasswordActivity"
+    private val sessionManager = SessionManager.instance
+    private var databaseHelper : DatabaseHelper? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            ImPasseTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colors.background
+                ) {
+                    databaseHelper = DatabaseHelper(this)
+                    DisplayAddPasswordScreen(databaseHelper!!)
+                }
+            }
+        }
+    }
     @Composable
-    private fun DisplayAddPasswordFields() {
+    private fun DisplayAddPasswordFields(databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
         Row(
@@ -114,7 +127,7 @@ class AddPasswordActivity(
                         modifier = Modifier
                             .width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
                     ) {
-                        Categories(databaseHelper, sessionManager.sessionUserName!!).getUserCategories().forEach { category ->
+                        Categories(sessionManager.sessionUserName!!).getUserCategories().forEach { category ->
                             DropdownMenuItem(onClick = {
                                 mSelectedText = category
                                 mExpanded = false
@@ -224,7 +237,8 @@ class AddPasswordActivity(
                             var index: Int = -1
 
                             try {
-                                val passwords : MutableList<List<String>> = databaseHelper.getAllUserStoredPasswords(databaseHelper.writeableDB, sessionUserName!!, sessionMasterPassword!!)
+                                val writableDatabase: SQLiteDatabase = databaseHelper!!.writableDatabase
+                                val passwords : MutableList<List<String>> = databaseHelper.getAllUserStoredPasswords(writableDatabase, sessionUserName!!, sessionMasterPassword!!)
                                 passwords.forEach{ password ->
                                     index = password.binarySearch(category)
                                 }
@@ -241,7 +255,7 @@ class AddPasswordActivity(
 
                                 if(!isExistingPassword && !textFieldInputIsError && !errorOnSubmission) {
                                     errorOnSubmission = databaseHelper.addNewPassword(
-                                        databaseHelper.writeableDB,
+                                        writableDatabase,
                                         category,
                                         userName,
                                         password,
@@ -293,18 +307,12 @@ class AddPasswordActivity(
     }
 
     @Composable
-    fun DisplayAddPasswordScreen() {
+    fun DisplayAddPasswordScreen(databaseHelper: DatabaseHelper) {
         ImPasseTheme {
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
             Scaffold(
-                topBar = { AppBar().TopBar(
-                    coroutineScope = coroutineScope,
-                    scaffoldState = scaffoldState,
-                    navHostController = navHostController,
-                    sessionManager = sessionManager,
-                    databaseHelper = databaseHelper,
-                ) },
+                topBar = { AppBar(scaffoldState, coroutineScope).TopBar() },
                 scaffoldState = scaffoldState,
                 //drawerBackgroundColor = Color.DarkGray,
                 drawerGesturesEnabled = true,
@@ -337,12 +345,15 @@ class AddPasswordActivity(
                         }
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(text = AnnotatedString(text = sessionManager.sessionUserName!!), color = Color.Magenta)
-                        Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
+                        Drawer().AppDrawer(
+                            coroutineScope = coroutineScope,
+                            scaffoldState = scaffoldState
+                        )
                     }
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding))
-                DisplayAddPasswordFields()
+                DisplayAddPasswordFields(databaseHelper)
             }
         }
     }

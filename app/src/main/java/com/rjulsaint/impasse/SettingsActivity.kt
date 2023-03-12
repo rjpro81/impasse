@@ -1,7 +1,12 @@
 package com.rjulsaint.impasse
 
+import android.content.Intent
+import android.database.sqlite.SQLiteDatabase
+import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -25,22 +30,34 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
-import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
-import kotlinx.coroutines.CoroutineScope
 
-class SettingsActivity(
-    val navHostController: NavHostController,
-    val databaseHelper: DatabaseHelper,
-    val sessionManager: SessionManager,
-    val coroutineScope: CoroutineScope,
-    val scaffoldState: ScaffoldState
-) {
+class SettingsActivity() : AppCompatActivity(){
     private val tag : String = "SettingsActivity"
+    private var databaseHelper : DatabaseHelper? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            ImPasseTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colors.background
+                ) {
+                    databaseHelper = DatabaseHelper(this)
+                    DisplaySettingsScreen(databaseHelper!!)
+                }
+            }
+        }
+    }
     @Composable
-    private fun DisplaySettingsFields() {
+    private fun DisplaySettingsFields(databaseHelper: DatabaseHelper) {
         val context = LocalContext.current
         val focusManager = LocalFocusManager.current
+        val sessionManager = SessionManager.instance
+        val coroutineScope = rememberCoroutineScope()
+        val scaffoldState = rememberScaffoldState()
+        val writableDatabase: SQLiteDatabase = databaseHelper.writableDatabase
         Column(
             modifier = Modifier
                 .clickable { focusManager.clearFocus() }
@@ -67,7 +84,7 @@ class SettingsActivity(
                             Button(
                                 onClick = {
                                     try {
-                                        val numOfRecordsDeleted = databaseHelper.deleteAllPasswords(databaseHelper.writeableDB)
+                                        val numOfRecordsDeleted = databaseHelper.deleteAllPasswords(writableDatabase)
                                         if(numOfRecordsDeleted > 0) {
                                             Toast.makeText(
                                                 context,
@@ -112,7 +129,9 @@ class SettingsActivity(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ){
-                Icon(painter = painterResource(id = R.drawable.baseline_edit_24), contentDescription = "Edit Users", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
+                Icon(painter = painterResource(id = R.drawable.baseline_edit_24), contentDescription = "Edit Users", modifier = Modifier
+                    .size(50.dp)
+                    .padding(start = 10.dp, end = 10.dp))
 
                 ClickableText(
                     onClick = {
@@ -129,7 +148,9 @@ class SettingsActivity(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ){
-                Icon(painter = painterResource(id = R.drawable.baseline_delete_24), contentDescription = "Delete Password", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
+                Icon(painter = painterResource(id = R.drawable.baseline_delete_24), contentDescription = "Delete Password", modifier = Modifier
+                    .size(50.dp)
+                    .padding(start = 10.dp, end = 10.dp))
 
                 ClickableText(
                     onClick = {
@@ -147,7 +168,9 @@ class SettingsActivity(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ){
-                Icon(painter = painterResource(id = R.drawable.baseline_palette_24), contentDescription = "Themes", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
+                Icon(painter = painterResource(id = R.drawable.baseline_palette_24), contentDescription = "Themes", modifier = Modifier
+                    .size(50.dp)
+                    .padding(start = 10.dp, end = 10.dp))
 
                 ClickableText(
                     onClick = {
@@ -164,11 +187,14 @@ class SettingsActivity(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ){
-                Icon(painter = painterResource(id = R.drawable.baseline_logout_24), contentDescription = "Logout", modifier = Modifier.size(50.dp).padding(start = 10.dp, end = 10.dp))
+                Icon(painter = painterResource(id = R.drawable.baseline_logout_24), contentDescription = "Logout", modifier = Modifier
+                    .size(50.dp)
+                    .padding(start = 10.dp, end = 10.dp))
 
                 ClickableText(
                     onClick = {
-                        navHostController.navigate(ScreenNavigation.Login.route)
+                        val myIntent = Intent(this@SettingsActivity, LoginActivity::class.java)
+                        this@SettingsActivity.startActivity(myIntent)
                         sessionManager.sessionUserName = null
                         Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
                     },
@@ -184,23 +210,18 @@ class SettingsActivity(
     }
 
     @Composable
-    fun DisplaySettingsScreen() {
+    fun DisplaySettingsScreen(databaseHelper: DatabaseHelper) {
         ImPasseTheme {
+            val sessionManager = SessionManager.instance
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
             Scaffold(
-                topBar = { AppBar().TopBar(
-                    coroutineScope = coroutineScope,
-                    scaffoldState = scaffoldState,
-                    navHostController = navHostController,
-                    sessionManager = sessionManager,
-                    databaseHelper = databaseHelper,
-                ) },
+                topBar = { AppBar(scaffoldState, coroutineScope).TopBar() },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,
                 drawerGesturesEnabled = true,
                 drawerContent = {
-                    if(navHostController.currentBackStackEntry?.destination?.route != "Login")
+                    if(LocalContext.current != this@SettingsActivity)
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -230,12 +251,15 @@ class SettingsActivity(
                             Spacer(modifier = Modifier.height(24.dp))
                             Text(text = sessionManager.sessionUserName!!, color = Color.Magenta)
 
-                            Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
+                            Drawer().AppDrawer(
+                                coroutineScope = coroutineScope,
+                                scaffoldState = scaffoldState
+                            )
                         }
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding)) {
-                    DisplaySettingsFields()
+                    DisplaySettingsFields(databaseHelper)
                 }
             }
         }

@@ -1,8 +1,13 @@
 package com.rjulsaint.impasse
 
+import android.content.Intent
 import android.content.res.Resources.NotFoundException
+import android.database.sqlite.SQLiteDatabase
+import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -25,20 +30,28 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
-import kotlinx.coroutines.CoroutineScope
 
-class NewAccountActivity(
-    val navHostController: NavHostController,
-    val databaseHelper: DatabaseHelper,
-    val sessionManager: SessionManager,
-    val coroutineScope: CoroutineScope,
-    val scaffoldState: ScaffoldState
-) {
+class NewAccountActivity() : AppCompatActivity(){
     private val tag : String = "NewAccountActivity"
+    var databaseHelper : DatabaseHelper? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            ImPasseTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colors.background
+                ) {
+                    databaseHelper = DatabaseHelper(this)
+                    DisplayUsernameScreen(databaseHelper!!)
+                }
+            }
+        }
+    }
     @Composable
-    private fun DisplayUsernameFields() {
+    private fun DisplayUsernameFields(databaseHelper: DatabaseHelper) {
         val focusManager = LocalFocusManager.current
         val context = LocalContext.current
         Row(
@@ -180,7 +193,8 @@ class NewAccountActivity(
                         onClick =
                         {
                             try {
-                                navHostController.navigate(ScreenNavigation.Login.route)
+                                val myIntent = Intent(this@NewAccountActivity, LoginActivity::class.java)
+                                this@NewAccountActivity.startActivity(myIntent)
                             } catch(ex : Exception){
                                 Log.e(tag, "Unable to navigate to Login screen.", ex)
                             }
@@ -199,13 +213,14 @@ class NewAccountActivity(
                             var result : Long? = null
                             var index : Int = -1
                             try {
+                                val writableDatabase: SQLiteDatabase = databaseHelper!!.writableDatabase
                                 val users : MutableList<List<String>> = databaseHelper.getImpasseUser(
-                                    databaseHelper.writeableDB
+                                    writableDatabase
                                 )
                                 users.forEach{ user ->
                                     index = user.binarySearch(userName)
                                 }
-                                result = databaseHelper.addNewUser(databaseHelper.writeableDB, userName, masterPassword)
+                                result = databaseHelper.addNewUser(writableDatabase, userName, masterPassword)
                             } catch (ex : Exception){
                                 Log.e(tag, "Unable to access database to add new user.", ex)
                             }
@@ -222,7 +237,8 @@ class NewAccountActivity(
                                 try {
                                     Toast.makeText(context, "Account created", Toast.LENGTH_SHORT)
                                         .show()
-                                    navHostController.navigate(ScreenNavigation.Login.route)
+                                    val myIntent = Intent(this@NewAccountActivity, LoginActivity::class.java)
+                                    this@NewAccountActivity.startActivity(myIntent)
                                 }catch(ex : NotFoundException){
                                     Log.e(tag, "Unable to locate resource for displaying toast.", ex)
                                 } catch(ex : IllegalArgumentException){
@@ -248,21 +264,17 @@ class NewAccountActivity(
 
     //@Preview(showBackground = true)
     @Composable
-    fun DisplayUsernameScreen() {
+    fun DisplayUsernameScreen(databaseHelper: DatabaseHelper) {
+        val scaffoldState = rememberScaffoldState()
+        val coroutineScope = rememberCoroutineScope()
         ImPasseTheme {
             Scaffold(
-                topBar = { AppBar().TopBar(
-                    coroutineScope = coroutineScope,
-                    scaffoldState = scaffoldState,
-                    navHostController = navHostController,
-                    sessionManager = sessionManager,
-                    databaseHelper = databaseHelper,
-                ) },
+                topBar = { AppBar(scaffoldState, coroutineScope).TopBar() },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,
                 drawerGesturesEnabled = true,
                 drawerContent = {
-                    if(navHostController.currentBackStackEntry?.destination?.route != "NewUser")
+                    if(LocalContext.current != this@NewAccountActivity)
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -290,12 +302,15 @@ class NewAccountActivity(
                                 )
                             }
                             Spacer(modifier = Modifier.height(24.dp))
-                            Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
+                            Drawer().AppDrawer(
+                                coroutineScope = coroutineScope,
+                                scaffoldState = scaffoldState
+                            )
                         }
                 }
             ) { contentPadding ->
                 Box(modifier = Modifier.padding(contentPadding))
-                DisplayUsernameFields()
+                DisplayUsernameFields(databaseHelper)
             }
         }
     }

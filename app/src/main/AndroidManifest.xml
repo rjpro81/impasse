@@ -19,17 +19,22 @@
             android:name=".ViewPasswordsActivity"
             android:exported="false"
             android:label="@string/title_activity_view_passwords"
-            android:theme="@style/Theme.ImPasse" />
+            android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".AddPasswordActivity"
             android:exported="false"
             android:label="@string/title_activity_add_password"
-            android:theme="@style/Theme.ImPasse" />
+            android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".NewAccountActivity"
             android:exported="false"
-            android:label="@string/title_activity_new_user"
-            android:theme="@style/Theme.ImPasse" />
+            android:label="NewAccountActivity"
+            android:theme="@style/Theme.AppCompat" />
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:label="SettingsActivity"
+            android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

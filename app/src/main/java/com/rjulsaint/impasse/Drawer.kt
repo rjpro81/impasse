@@ -12,8 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.rjulsaint.impasse.ui.theme.Purple500
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -21,7 +21,8 @@ import kotlinx.coroutines.launch
 class Drawer {
     private val tag : String = "Drawer"
     @Composable
-    fun AppDrawer(coroutineScope: CoroutineScope, scaffoldState: ScaffoldState, navHostController: NavHostController) {
+    fun AppDrawer(coroutineScope: CoroutineScope, scaffoldState: ScaffoldState) {
+        val navHostController = rememberNavController()
         val navigationItems = listOf(
             NavDrawerItem("Login", ScreenNavigation.Login.route, Icons.Rounded.Home),
             NavDrawerItem("User", ScreenNavigation.NewUser.route, Icons.Rounded.Face),
@@ -37,7 +38,7 @@ class Drawer {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(4.dp)
-                        .clickable{
+                        .clickable {
                             coroutineScope.launch {
                                 scaffoldState.drawerState.close()
                             }

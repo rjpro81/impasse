@@ -21,11 +21,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.fragment.app.FragmentActivity
 
-class EditProfileDialogActivity {
+class EditProfileDialogActivity : FragmentActivity(){
     private val tag: String = "ViewPasswordDialogActivity"
     @Composable
-    fun DisplayEditProfileDialogBox(onDismiss: () -> Unit, databaseHelper: DatabaseHelper, sessionManager: SessionManager) {
+    fun DisplayEditProfileDialogBox(onDismiss: () -> Unit, sessionManager: SessionManager) {
         var textFieldInputIsError by rememberSaveable { mutableStateOf(false) }
         var passwordVisible by remember { mutableStateOf(false) }
         val errorOnSubmission by remember { mutableStateOf(false) }
@@ -115,20 +116,20 @@ class EditProfileDialogActivity {
                     ) {
                         IconButton(onClick = {
                             try {
-                                val result = databaseHelper.updateUserProfile(
+                                /*val result = databaseHelper.updateUserProfile(
                                     databaseHelper.writeableDB,
                                     sessionManager.sessionUserName!!,
                                     sessionManager.sessionMasterPassword!!,
                                     userName,
                                     masterPassword,
-                                )
-                                if (result > 0) {
+                                )*/
+                               /* if (result > 0) {
                                     Toast.makeText(
                                         context,
                                         "Profile updated",
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                }
+                                }*/
                                 onDismiss()
                             } catch (ex: Exception) {
                                 Log.e(tag, "Unable to access database to update profile")

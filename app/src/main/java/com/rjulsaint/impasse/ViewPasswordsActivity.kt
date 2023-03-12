@@ -1,11 +1,13 @@
 package com.rjulsaint.impasse
 
-//import android.content.res.Resources.NotFoundException
+import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -27,19 +29,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
-import androidx.navigation.NavHostController
 import com.rjulsaint.impasse.ui.theme.ImPasseTheme
-import kotlinx.coroutines.CoroutineScope
 
 
-class ViewPasswordsActivity(
-    val navHostController: NavHostController,
-    val databaseHelper: DatabaseHelper,
-    val sessionManager: SessionManager,
-    val coroutineScope: CoroutineScope,
-    val scaffoldState: ScaffoldState
-) {
+class ViewPasswordsActivity() : AppCompatActivity(){
     private val tag : String = "ViewPasswordActivity"
+    private var databaseHelper : DatabaseHelper? = null
+    val sessionManager = SessionManager.instance
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     private fun DisplayViewPasswordFields() {
@@ -53,11 +49,16 @@ class ViewPasswordsActivity(
         var changeCardColor by remember { mutableStateOf(false) }
         var changeCardFontColor by remember { mutableStateOf(false) }
         var isPasswordDialogEditable = false
+        val writableDatabase: SQLiteDatabase = databaseHelper!!.writableDatabase
         val swipeState = rememberSwipeableState(initialValue = 0)
 
-        val squareSize = 48.dp
+        val interactionSource = remember { MutableInteractionSource() }
+        val isDragged by interactionSource.collectIsDraggedAsState()
+
+
+        val squareSize = 96.dp
         val sizePx = with(LocalDensity.current) { squareSize.toPx() }
-        val anchors = mapOf(0f to 0, sizePx to 1)
+        val anchors = mapOf(0f to 0, -sizePx to 1)
 
 
         Row(
@@ -72,12 +73,6 @@ class ViewPasswordsActivity(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
-                    .swipeable(
-                        state = swipeState,
-                        anchors = anchors,
-                        thresholds = { _, _ -> FractionalThreshold(0.3f) },
-                        orientation = Orientation.Horizontal
-                    )
             ) {
                 Spacer(
                     modifier = Modifier
@@ -85,8 +80,8 @@ class ViewPasswordsActivity(
                 )
                 var passwordsList : MutableList<List<String>>? = null
                 try {
-                    passwordsList = databaseHelper.getAllUserStoredPasswords(
-                        databaseHelper.writeableDB,
+                    passwordsList = databaseHelper!!.getAllUserStoredPasswords(
+                        writableDatabase,
                         sessionManager.sessionUserName!!,
                         sessionManager.sessionMasterPassword!!
                     )
@@ -99,7 +94,16 @@ class ViewPasswordsActivity(
                     changeCardColor = (cardIndex % 2) == 0
                     changeCardFontColor = (cardIndex % 2) == 0
                     Card(
-                        modifier = Modifier
+                        /*modifier = Modifier
+                            .swipeable(
+                                state = swipeState,
+                                anchors = anchors,
+                                interactionSource = interactionSource,
+                                thresholds = { _, _ -> FractionalThreshold(0.3f) },
+                                orientation = Orientation.Horizontal,
+                                enabled = true
+                            )
+                            .offset { IntOffset(swipeState.offset.value.roundToInt(), 0) }
                             .padding(10.dp)
                             .clickable(enabled = true, onClickLabel = "View Password", onClick = {
                                 isPasswordDialogEditable = false
@@ -107,8 +111,15 @@ class ViewPasswordsActivity(
                                 passUserName = password[1]
                                 passPassword = password[2]
                                 openDialogWindow = true
-                            }),
-                            elevation = 5.dp,
+                            })*/
+                       /* setModifierForPasswordCard(
+                            isDraggable = isDragged,
+                            swipeState = swipeState,
+                            anchors = anchors,
+                            interactionSource = interactionSource,
+                            threadHold = {/* _,_ -> FractionalThreshold(0.3f)*/ }
+                        ),*/
+                        elevation = 5.dp,
                         backgroundColor = if(changeCardColor) Color.Cyan else Color.Magenta
                     ) {
                         Column(
@@ -153,7 +164,7 @@ class ViewPasswordsActivity(
                                     category,
                                     passUserName,
                                     passPassword,
-                                    databaseHelper,
+                                    databaseHelper!!,
                                     sessionManager,
                                     isPasswordDialogEditable
                                 )
@@ -302,13 +313,7 @@ class ViewPasswordsActivity(
             val coroutineScope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
             Scaffold(
-                topBar = { AppBar().TopBar(
-                    coroutineScope = coroutineScope,
-                    scaffoldState = scaffoldState,
-                    navHostController = navHostController,
-                    sessionManager = sessionManager,
-                    databaseHelper = databaseHelper,
-                ) },
+                topBar = { AppBar(scaffoldState, coroutineScope).TopBar() },
                 scaffoldState = scaffoldState,
                 drawerBackgroundColor = Color.DarkGray,
                 drawerGesturesEnabled = true,
@@ -341,7 +346,10 @@ class ViewPasswordsActivity(
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(text = sessionManager.sessionUserName!!, color = Color.Magenta)
 
-                        Drawer().AppDrawer(coroutineScope = coroutineScope, scaffoldState = scaffoldState, navHostController = navHostController)
+                        Drawer().AppDrawer(
+                            coroutineScope = coroutineScope,
+                            scaffoldState = scaffoldState
+                        )
                     }
                 }
             ) { contentPadding ->
@@ -351,4 +359,34 @@ class ViewPasswordsActivity(
             }
         }
     }
+    /*
+    @OptIn(ExperimentalMaterialApi::class)
+    @Composable
+    fun setModifierForPasswordCard(
+        isDraggable: Boolean, 
+        swipeState: SwipeableState<T>, 
+        anchors:  Map<K, V>, 
+        interactionSource: MutableInteractionSource,
+        threadHold: (T, T) -> ThresholdConfig): Modifier{
+        var modifier = Modifier
+        if (isDraggable){
+            modifier = Modifier
+                .swipeable(
+                    state = swipeState,
+                    anchors = anchors,
+                    interactionSource = interactionSource,
+                    thresholds = threadHold,
+                    orientation = Orientation.Horizontal,
+                    enabled = true
+                )
+                .offset { IntOffset(swipeState.offset.value.roundToInt(), 0) }
+                .padding(10.dp) as Modifier.Companion
+        } else {
+            modifier = Modifier
+                .offset { IntOffset(swipeState.offset.value.roundToInt(), 0) }
+                .padding(10.dp) as Modifier.Companion
+        }
+        
+        return modifier
+    }*/
 }
